@@ -43,6 +43,8 @@ packages:
 # Override default flag values for local packages and extra-deps
 # flags: {}
 
+extra-deps:
+    - hegg-0.5.0.0@sha256:993731feab5c5cacb8c1aeeb3f23dd23fc38055156ddf3d5368f98ce3b21e208,6122
 # Extra package databases containing global packages
 # extra-package-dbs: []
 

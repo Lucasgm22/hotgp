@@ -50,28 +50,28 @@ data Lit
   | PairLit !Lit !Lit
   | ListLit !GType ![Lit]
   | LambdaLit !TypedTree
-  deriving (Show, Eq, Read, Generic)
+  deriving (Show, Eq, Read, Generic, Ord)
 
-data Measure = MkMeasure {_currentDepth :: !Int, _height :: !Int, _nodeCount :: !Int} deriving (Show, Eq, Read, Generic)
+data Measure = MkMeasure {_currentDepth :: !Int, _height :: !Int, _nodeCount :: !Int} deriving (Show, Eq, Read, Generic, Ord)
 
 -- | Values that do not receive inputs
 data Terminal
   = Arg !Int
   | Literal !Lit
-  deriving (Show, Eq, Read, Generic)
+  deriving (Show, Eq, Read, Generic, Ord)
 
 -- | The structure that represents a program written in this grammar
 data Tree
   = Leaf {_measure :: !(Maybe Measure), _terminal :: !Terminal}
   | Node {_measure :: !(Maybe Measure), _operation :: !Operation, _args :: ![Tree]}
-  deriving (Show, Eq, Read, Generic)
+  deriving (Show, Eq, Read, Generic, Ord)
 
 -- | A program combined with its expected inputs and output types
 data TypedTree = MkTypedTree
   { _tree :: !Tree,
     _type :: !FunctionType
   }
-  deriving (Show, Eq, Read, Generic)
+  deriving (Show, Eq, Read, Generic, Ord)
 
 -- All available operations in this grammar
 data Operation

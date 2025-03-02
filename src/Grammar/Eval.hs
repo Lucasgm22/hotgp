@@ -1,4 +1,4 @@
-module Grammar.Eval (evalTree, extractChar, extractFloat, extractInt, extractString, extractList) where
+module Grammar.Eval (evalTree, extractChar, extractFloat, extractInt, extractString, extractList, eval) where
 
 import Control.Monad
 import Data.Char (isAlpha, isDigit)
