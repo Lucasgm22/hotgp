@@ -93,11 +93,11 @@ data TreeF a = LeafF !Terminal
 
 {-
 A perfect solution found by hotgp for the compare string lenghts problem
-stringRep:
+stringRep: (this is the string representation of the solution, actual content)
 (if ((length x2) > (length x1)) 
   then ((length x0) < (length (reverse x1))) 
   else ((length x1) < (length (reverse x2)))) || ((length (if False then x0 else x0)) > (length x0))
-stringRepSimple:
+stringRepSimple: (this is the string representation of this solution after simplify)
 (if ((length x2) > (length x1)) 
   then ((length x0) < (length x1)) 
   else ((length x1) < (length x2))) || ((length x0) > (length x0))
