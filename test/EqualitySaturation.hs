@@ -30,7 +30,8 @@ infix 7 :*:, :/:
 tests :: [TestTree]
 tests =
     [
-    simpleSymTests
+        simpleSymTests
+      , treeFTests
     ]
 
 instance Analysis (Maybe Double) SymExpr where
@@ -66,9 +67,10 @@ cost = \case
 
 rewrites :: [Rewrite (Maybe Double) SymExpr]
 rewrites =
-  [ pat (pat ("a" :*: "b") :/: "c") := pat ("a" :*: pat ("b" :/: "c"))
-  , pat ("x" :/: "x")               := pat (Const 1)
-  , pat ("x" :*: pat (Const 1))     := "x"
+  [ 
+      pat (pat ("a" :*: "b") :/: "c") := pat ("a" :*: pat ("b" :/: "c"))
+    , pat ("x" :/: "x")               := pat (Const 1)
+    , pat ("x" :*: pat (Const 1))     := "x"
   ]
 
 rewrite :: Fix SymExpr -> Fix SymExpr
@@ -79,8 +81,9 @@ e1 = Fix (Fix (Fix (Symbol "x") :*: Fix (Const 2)) :/: Fix (Const 2)) -- (x*2)/2
 
 simpleSymTests :: TestTree
 simpleSymTests = testGroup "Simple Sym"
-    [ testCase "(a*2)/2 = a"  $ rewrite e1 @?= Fix (Symbol "x")
-    , testCase "(x/x)+1) = 4" $ rewrite (Fix $ Fix (Const 3) :+: Fix (Fix (Symbol "x") :/: Fix (Symbol "x"))) @?= Fix (Const 4)
+    [ 
+        testCase "(a*2)/2 = a"  $ rewrite e1 @?= Fix (Symbol "x")
+      , testCase "(3+(x/x)+1) = 4" $ rewrite (Fix $ Fix (Const 3) :+: Fix (Fix (Symbol "x") :/: Fix (Symbol "x"))) @?= Fix (Const 4)
     ]
 -- TODO: Write the Program tree test
 
@@ -88,9 +91,23 @@ simpleSymTests = testGroup "Simple Sym"
 data TreeF a = LeafF !Terminal
              | NodeF !Operation ![a] deriving (Functor, Foldable, Traversable, Eq, Ord, Show)
 
-fromTree :: Tree -> Fix TreeF
-fromTree (Leaf mm t)               = Fix $ LeafF t
-fromTree (Grammar.Node mm op args) = Fix $ NodeF op (fromTree <$> args)
+{-
+A perfect solution found by hotgp for the compare string lenghts problem
+stringRep:
+(if ((length x2) > (length x1)) 
+  then ((length x0) < (length (reverse x1))) 
+  else ((length x1) < (length (reverse x2)))) || ((length (if False then x0 else x0)) > (length x0))
+stringRepSimple:
+(if ((length x2) > (length x1)) 
+  then ((length x0) < (length x1)) 
+  else ((length x1) < (length x2))) || ((length x0) > (length x0))
+-}
+solutionForCompareStringLengths :: Tree
+solutionForCompareStringLengths = Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 5, _nodeCount = 27}), _operation = Or, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 4, _nodeCount = 18}), _operation = If, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 5}), _operation = GtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 2}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 3, _nodeCount = 6}), _operation = LtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 2, _nodeCount = 3}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Reverse, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 3, _nodeCount = 6}), _operation = LtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 2, _nodeCount = 3}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Reverse, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 2}]}]}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 3, _nodeCount = 8}), _operation = GtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 5}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 4}), _operation = If, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Literal (BoolLit False)},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]}]}]}
+
+fromTreeToFixTreeF :: Tree -> Fix TreeF
+fromTreeToFixTreeF (Leaf _ t)               = Fix $ LeafF t
+fromTreeToFixTreeF (Grammar.Node _ op args) = Fix $ NodeF op (fromTreeToFixTreeF <$> args)
 
 _terminal :: TreeF a -> Terminal
 _terminal (LeafF t) = t
@@ -104,7 +121,7 @@ instance Analysis (Maybe Lit) TreeF where
   makeA :: TreeF (Maybe Lit) -> Maybe Lit
   makeA = \case
     LeafF (Literal l)       -> Just l
-    LeafF (Arg _)           -> Nothing -- I am not really sure here
+    LeafF (Arg _)           -> Nothing -- An argument of the function has no Literal Value at compile time similar to Symbol in SymExpr
     NodeF op args           -> sequenceA args >>= eval op
 
   joinA :: Maybe Lit -> Maybe Lit -> Maybe Lit
@@ -181,7 +198,7 @@ costTreeF = \case
   NodeF Snd ns           -> sum ns + 2
 
 boolLeafFPattern :: Bool -> TreeF (Pattern TreeF)
-boolLeafFPattern b = LeafF (Literal (BoolLit True))
+boolLeafFPattern b = LeafF (Literal (BoolLit b))
 
 intLeafFPattner :: Int -> TreeF (Pattern TreeF)
 intLeafFPattner i = LeafF (Literal (IntLit i))
@@ -202,12 +219,13 @@ rewritesTreeF =
     , pat (NodeF EqInt ["a", "a"])   := pat (boolLeafFPattern True)  -- a Eq a             = True
     , pat (NodeF LtInt ["a", "a"])   := pat (boolLeafFPattern False) -- a Lt a             = False
     , pat (NodeF GtInt ["a", "a"])   := pat (boolLeafFPattern False) -- a Gt a             = False
-    , pat (NodeF MinInt ["a", "a"])  := "a"                   -- Min a a            = a
-    , pat (NodeF MaxInt ["a", "a"])  := "a"                   -- Max a a            = a
-    , pat (NodeF And ["a", "a"])     := "a"                   -- a AND a            = a
-    , pat (NodeF Or ["a", "a"])      := "a"                   -- a OR a             = a
-    , pat (NodeF If ["a", "b", "b"]) := "b"                   -- IF a then b else b = b
+    , pat (NodeF MinInt ["a", "a"])  := "a"                          -- Min a a            = a
+    , pat (NodeF MaxInt ["a", "a"])  := "a"                          -- Max a a            = a
+    , pat (NodeF And ["a", "a"])     := "a"                          -- a AND a            = a
+    , pat (NodeF Or ["a", "a"])      := "a"                          -- a OR a             = a
+    , pat (NodeF If ["a", "b", "b"]) := "b"                          -- IF a then b else b = b
     -- BOOLEAN ALGEBRA
+    -- TODO OR/AND ARE COMMUTATIVE AND ASSOCIATIVE
     , pat (NodeF Or [pat (boolLeafFPattern True), "a"])       := pat (boolLeafFPattern True)           -- True Or a  = True
     , pat (NodeF Or ["a", pat (boolLeafFPattern True)])       := pat (boolLeafFPattern True)           -- a Or True  = True
     , pat (NodeF Or [pat (boolLeafFPattern False), "a"])      := "a"                                   -- False Or a = a
@@ -216,7 +234,7 @@ rewritesTreeF =
     , pat (NodeF And ["a", pat (boolLeafFPattern True)])      := "a"                                   -- a And True  = a
     , pat (NodeF And [pat (boolLeafFPattern False), "a"])     := pat (boolLeafFPattern False)          -- False And a = False
     , pat (NodeF And ["a", pat (boolLeafFPattern False)])     := pat (boolLeafFPattern False)          -- a And False = False
-    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"]) := pat (NodeF If ["a", "c", "b"])               -- IF !a then b else c = IF a then c else b
+    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"])        -- IF !a then b else c = IF a then c else b
     --  ARITHMETICS
     --    ADDITION
     --      ADD BY 0
@@ -283,4 +301,13 @@ rewritesTreeF =
     , pat (NodeF Range ["a", "a", "a"]) := pat (NodeF Singleton ["a"])                 -- [a,a+a..a] = [a]
   ]
 
+
+rewriteTreeF :: Fix TreeF -> Fix TreeF
+rewriteTreeF t = fst (equalitySaturation t rewritesTreeF costTreeF)
+
+treeFTests :: TestTree
+treeFTests = testGroup "TreeF"
+  [ 
+      testCase "rewrite solutionForCompareStringLengths"  $ rewriteTreeF (fromTreeToFixTreeF solutionForCompareStringLengths) @?= Fix (LeafF (Literal (BoolLit False)))
+  ]
 

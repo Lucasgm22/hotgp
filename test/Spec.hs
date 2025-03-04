@@ -4,6 +4,7 @@ import qualified GrammarSpec
 import qualified MaxTreeDepthSpec
 import qualified MeasureSpec
 import qualified PrettyTreeSpec
+import qualified EqualitySaturation
 import Test.Tasty
 
 main =
@@ -15,5 +16,6 @@ main =
         testGroup "Benchmark" BenchmarkSpec.tests,
         testGroup "Max tree depth" MaxTreeDepthSpec.tests,
         testGroup "Prettify Tree" PrettyTreeSpec.tests,
-        testGroup "Measure" MeasureSpec.tests
+        testGroup "Measure" MeasureSpec.tests,
+        testGroup "Equality Saturation" EqualitySaturation.tests
       ]
