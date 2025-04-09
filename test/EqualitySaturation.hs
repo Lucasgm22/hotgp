@@ -113,11 +113,11 @@ fromTreeToFixTreeF (Grammar.Node _ op args) = Fix $ NodeF op (fromTreeToFixTreeF
 
 _terminalF :: TreeF a -> Terminal
 _terminalF (LeafF t) = t
-_terminalF _           = error "Unexpected _termial call for NodeF"
+_terminalF _         = error "Unexpected _termial call for NodeF"
 
 _argsF :: TreeF a -> [a]
 _argsF (NodeF _ args) = args
-_argsF _                = error "Unexpected _args call for LeafF"
+_argsF _              = error "Unexpected _args call for LeafF"
 
 instance Analysis (Maybe Lit) TreeF where
   makeA :: TreeF (Maybe Lit) -> Maybe Lit
@@ -255,15 +255,15 @@ rewritesTreeF =
     , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "a"]) := pat (intLeafFPattner 0) -- (a * b) % a = 0
     , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "b"]) := pat (intLeafFPattner 0) -- (a * b) % b = 0
     --  LIST
-    , pat (NodeF Len [pat (NodeF Reverse ["a"])])    := pat (NodeF Len ["a"])          -- Len . Reverser = Len
-    , pat (NodeF Head [pat (NodeF Singleton ["a"])]) := "a"                            -- Head . Singleton = Id
-    , pat (NodeF Reverse [pat (NodeF Singleton ["a"])]) := pat (NodeF Singleton ["a"]) -- Reverse . Singleton = Singleton
-    , pat (NodeF Len [pat (NodeF Singleton ["a"])]) := pat (intLeafFPattner 1)         -- Len . Singleton = 1
-    , pat (NodeF ProductInts [pat (NodeF Singleton ["a"])]) := "a"                     -- Product . Singleton = Id
-    , pat (NodeF SumInts [pat (NodeF Singleton ["a"])]) := "a"                         -- Sum . Singleton = Id
-    , pat (NodeF Reverse [pat (NodeF Reverse ["a"])]) := "a"                           -- Reverse . Reverse = Id
-    , pat (NodeF Take [pat (NodeF Len ["a"]), "a"]) := "a"                             -- Take (Len a) a = a 
-    , pat (NodeF Range ["a", "a", "a"]) := pat (NodeF Singleton ["a"])                 -- [a,a+a..a] = [a]
+    , pat (NodeF Len [pat (NodeF Reverse ["a"])])           := pat (NodeF Len ["a"])       -- Len . Reverser = Len
+    , pat (NodeF Head [pat (NodeF Singleton ["a"])])        := "a"                         -- Head . Singleton = Id
+    , pat (NodeF Reverse [pat (NodeF Singleton ["a"])])     := pat (NodeF Singleton ["a"]) -- Reverse . Singleton = Singleton
+    , pat (NodeF Len [pat (NodeF Singleton ["a"])])         := pat (intLeafFPattner 1)     -- Len . Singleton = 1
+    , pat (NodeF ProductInts [pat (NodeF Singleton ["a"])]) := "a"                         -- Product . Singleton = Id
+    , pat (NodeF SumInts [pat (NodeF Singleton ["a"])])     := "a"                         -- Sum . Singleton = Id
+    , pat (NodeF Reverse [pat (NodeF Reverse ["a"])])       := "a"                         -- Reverse . Reverse = Id
+    , pat (NodeF Take [pat (NodeF Len ["a"]), "a"])         := "a"                         -- Take (Len a) a = a 
+    , pat (NodeF Range ["a", "a", "a"])                     := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
   ]
 
 rewriteTreeF :: Fix TreeF -> Fix TreeF
@@ -272,6 +272,6 @@ rewriteTreeF t = fst (equalitySaturation t rewritesTreeF costTreeF)
 treeFTests :: TestTree
 treeFTests = testGroup "TreeF"
   [
-      testCase "rewrite solutionForCompareStringLengths"  $ rewriteTreeF (fromTreeToFixTreeF solutionForCompareStringLengths) @?= Fix (LeafF (Literal (BoolLit False)))
+      testCase "rewrite solutionForCompareStringLengths"  $ rewriteTreeF (rewriteTreeF (fromTreeToFixTreeF solutionForCompareStringLengths)) @?= Fix (LeafF (Literal (BoolLit False)))
   ]
 
