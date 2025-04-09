@@ -189,17 +189,17 @@ rewritesTreeF =
     , pat (NodeF Or ["a", "a"])      := "a"                          -- a OR a             = a
     , pat (NodeF If ["a", "b", "b"]) := "b"                          -- IF a then b else b = b
     -- BOOLEAN ALGEBRA
-    , pat (NodeF Or ["a", "b"])                               := pat (NodeF Or ["b", "a"])             -- a Or b = b Or a
-    , pat (NodeF And ["a", "b"])                              := pat (NodeF And ["b", "a"])            -- a And b = b And a
-    , pat (NodeF Or [pat (boolLeafFPattern True), "a"])       := pat (boolLeafFPattern True)           -- True Or a  = True
-    , pat (NodeF Or ["a", pat (boolLeafFPattern True)])       := pat (boolLeafFPattern True)           -- a Or True  = True
-    , pat (NodeF Or [pat (boolLeafFPattern False), "a"])      := "a"                                   -- False Or a = a
-    , pat (NodeF Or ["a", pat (boolLeafFPattern False)])      := "a"                                   -- a Or False = a
-    , pat (NodeF And [pat (boolLeafFPattern True), "a"])      := "a"                                   -- True And a  = a
-    , pat (NodeF And ["a", pat (boolLeafFPattern True)])      := "a"                                   -- a And True  = a
-    , pat (NodeF And [pat (boolLeafFPattern False), "a"])     := pat (boolLeafFPattern False)          -- False And a = False
-    , pat (NodeF And ["a", pat (boolLeafFPattern False)])     := pat (boolLeafFPattern False)          -- a And False = False
-    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"])        -- IF !a then b else c = IF a then c else b
+    , pat (NodeF Or ["a", "b"])                               := pat (NodeF Or ["b", "a"])      -- a Or b = b Or a
+    , pat (NodeF And ["a", "b"])                              := pat (NodeF And ["b", "a"])     -- a And b = b And a
+    , pat (NodeF Or [pat (boolLeafFPattern True), "a"])       := pat (boolLeafFPattern True)    -- True Or a  = True
+    , pat (NodeF Or ["a", pat (boolLeafFPattern True)])       := pat (boolLeafFPattern True)    -- a Or True  = True
+    , pat (NodeF Or [pat (boolLeafFPattern False), "a"])      := "a"                            -- False Or a = a
+    , pat (NodeF Or ["a", pat (boolLeafFPattern False)])      := "a"                            -- a Or False = a
+    , pat (NodeF And [pat (boolLeafFPattern True), "a"])      := "a"                            -- True And a  = a
+    , pat (NodeF And ["a", pat (boolLeafFPattern True)])      := "a"                            -- a And True  = a
+    , pat (NodeF And [pat (boolLeafFPattern False), "a"])     := pat (boolLeafFPattern False)   -- False And a = False
+    , pat (NodeF And ["a", pat (boolLeafFPattern False)])     := pat (boolLeafFPattern False)   -- a And False = False
+    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"]) -- IF !a then b else c = IF a then c else b
     --  ARITHMETICS
     --    ADDITION
     --      ADD BY 0
@@ -218,8 +218,8 @@ rewritesTreeF =
     , pat (NodeF SubInt [pat (intLeafFPattner 0), "a"])     := "a"                       -- a - 0 = a
     , pat (NodeF SubFloat ["a", pat (floatLeafFPattner 0)]) := "a"                       -- a - 0.0 = a
     --      SUBTRACT BY ITSELF
-    , pat (NodeF SubInt ["a", "a"])                         := pat (intLeafFPattner 0)   -- a - a = 0
-    , pat (NodeF SubFloat ["a", "a"])                       := pat (floatLeafFPattner 0) -- a - a = 0.0
+    , pat (NodeF SubInt ["a", "a"])   := pat (intLeafFPattner 0)   -- a - a = 0
+    , pat (NodeF SubFloat ["a", "a"]) := pat (floatLeafFPattner 0) -- a - a = 0.0
     --    MULTIPLICATION
     --      MULTIPLY BY 1
     , pat (NodeF MultInt [pat (intLeafFPattner 1), "a"])        := "a" -- 1 * a = a
