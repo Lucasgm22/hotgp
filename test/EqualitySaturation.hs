@@ -111,7 +111,7 @@ toTreeF :: Tree -> Fix TreeF
 toTreeF (Leaf _ t)               = Fix $ LeafF t
 toTreeF (Grammar.Node _ op args) = Fix $ NodeF op (toTreeF <$> args)
 
--- Transform Fixed point notation of Tree to only Tree, calculates Measure like in Grammar.Helpers#
+-- Transform Fixed point notation of Tree to only Tree, calculates Measure like in Grammar.Helpers#computeMeasure
 toTree :: Fix TreeF -> Tree
 toTree = toTree' 0
   where
