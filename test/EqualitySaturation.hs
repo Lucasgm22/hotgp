@@ -107,9 +107,20 @@ stringRepSimple: (this is the string representation of this solution after simpl
 solutionForCompareStringLengths :: Tree
 solutionForCompareStringLengths = Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 5, _nodeCount = 27}), _operation = Or, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 4, _nodeCount = 18}), _operation = If, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 5}), _operation = GtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 2}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 3, _nodeCount = 6}), _operation = LtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 2, _nodeCount = 3}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Reverse, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 3, _nodeCount = 6}), _operation = LtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 1}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 2, _nodeCount = 3}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Reverse, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 2}]}]}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 3, _nodeCount = 8}), _operation = GtInt, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 5}), _operation = Len, Grammar._args = [Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 4}), _operation = If, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Literal (BoolLit False)},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]}]},Grammar.Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 2}), _operation = Len, Grammar._args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), Grammar._terminal = Arg 0}]}]}]}
 
-fromTreeToFixTreeF :: Tree -> Fix TreeF
-fromTreeToFixTreeF (Leaf _ t)               = Fix $ LeafF t
-fromTreeToFixTreeF (Grammar.Node _ op args) = Fix $ NodeF op (fromTreeToFixTreeF <$> args)
+toTreeF :: Tree -> Fix TreeF
+toTreeF (Leaf _ t)               = Fix $ LeafF t
+toTreeF (Grammar.Node _ op args) = Fix $ NodeF op (toTreeF <$> args)
+
+-- Transform Fixed point notation of Tree to only Tree, calculates Measure like in Grammar.Helpers#
+toTree :: Fix TreeF -> Tree
+toTree = toTree' 0
+  where
+    toTree' currentDepth (Fix (LeafF t))            = Leaf (Just (leafMeasure currentDepth)) t
+    toTree' currentDepth (Fix (NodeF op args))      = Grammar.Node (Just (nodeMeasure currentDepth measureArgs)) op measureArgs
+      where
+        measureArgs = toTree' (currentDepth + 1) <$> args
+    leafMeasure cd       = MkMeasure { _currentDepth = cd, _height = 0, _nodeCount = 1}
+    nodeMeasure cd margs = MkMeasure { _currentDepth = cd, _height = 1 + maximum (getHeight <$> margs), _nodeCount = 1 + sum (getNodeCount <$> margs)}
 
 _terminalF :: TreeF a -> Terminal
 _terminalF (LeafF t) = t
@@ -266,12 +277,12 @@ rewritesTreeF =
     , pat (NodeF Range ["a", "a", "a"])                     := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
   ]
 
-rewriteTreeF :: Fix TreeF -> Fix TreeF
-rewriteTreeF t = fst (equalitySaturation t rewritesTreeF costTreeF)
+rewriteTreeF :: Tree -> Tree
+rewriteTreeF t = toTree $ fst (equalitySaturation (toTreeF t) rewritesTreeF costTreeF)
 
 treeFTests :: TestTree
 treeFTests = testGroup "TreeF"
   [
-      testCase "rewrite solutionForCompareStringLengths"  $ rewriteTreeF (rewriteTreeF (fromTreeToFixTreeF solutionForCompareStringLengths)) @?= Fix (LeafF (Literal (BoolLit False)))
+      testCase "rewrite solutionForCompareStringLengths"  $ rewriteTreeF (rewriteTreeF solutionForCompareStringLengths) @?= Leaf Nothing (Literal (BoolLit False))
   ]
 
