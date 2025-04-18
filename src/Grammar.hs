@@ -4,6 +4,7 @@ module Grammar
     module Grammar.Pretty,
     module Grammar.Eval,
     module Grammar.Types,
+    module Grammar.EqualitySaturation,
   )
 where
 
@@ -12,3 +13,4 @@ import Grammar.Eval
 import Grammar.Helpers
 import Grammar.Pretty
 import Grammar.Types
+import Grammar.EqualitySaturation
