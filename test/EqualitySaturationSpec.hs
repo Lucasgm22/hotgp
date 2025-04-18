@@ -1,4 +1,4 @@
-module EqualitySaturation where
+module EqualitySaturationSpec where
 
 import Test.Tasty
 import Test.Tasty.HUnit

@@ -150,7 +150,7 @@ test-suite hotgp-test
   main-is: Spec.hs
   other-modules:
       BenchmarkSpec
-      EqualitySaturation
+      EqualitySaturationSpec
       EvolutionSpec
       EvolutionSpec.AtPointSpec
       EvolutionSpec.CrossoverSpec
