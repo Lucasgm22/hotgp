@@ -59,6 +59,7 @@ instance Analysis (Maybe Lit) TreeF where
   joinA Nothing Nothing     = Nothing
   joinA Nothing (Just l)    = Just l
   joinA (Just l) Nothing    = Just l
+-- PROBLEM: hotgp-exe: ouch, that shouldn't have happened FloatLit (-4461.4644) != FloatLit (-4461.465)
   joinA (Just l1) (Just l2) = if l1 == l2 then Just l1 else error ("ouch, that shouldn't have happened " ++ show l1 ++ " != " ++ show l2)
 
   modifyA :: ClassId -> EGraph (Maybe Lit) TreeF -> EGraph (Maybe Lit) TreeF
