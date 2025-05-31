@@ -15,11 +15,16 @@ import Data.Equality.Saturation
 import Data.Equality.Analysis
 import Data.Equality.Graph
 import Data.Equality.Graph.Lens
+import qualified Data.IntMap.Strict as IM
+
 
 import Grammar.Core
 import Grammar.Helpers
 import Grammar.Eval
 import Data.String (IsString(fromString))
+import Data.Equality.Matching.Database (Subst)
+import qualified Data.Maybe
+import Data.Maybe (isJust)
 
 -- | Fixed point of the structure that represents a program written in this grammar
 data TreeF a = LeafF !Terminal
@@ -56,11 +61,13 @@ instance Analysis (Maybe Lit) TreeF where
     NodeF op args           -> sequenceA args >>= eval op
 
   joinA :: Maybe Lit -> Maybe Lit -> Maybe Lit
-  joinA Nothing Nothing     = Nothing
-  joinA Nothing (Just l)    = Just l
-  joinA (Just l) Nothing    = Just l
+  joinA Nothing Nothing                           = Nothing
+  joinA Nothing (Just l)                          = Just l
+  joinA (Just l) Nothing                          = Just l
 -- PROBLEM: hotgp-exe: ouch, that shouldn't have happened FloatLit (-4461.4644) != FloatLit (-4461.465)
-  joinA (Just l1) (Just l2) = if l1 == l2 then Just l1 else error ("ouch, that shouldn't have happened " ++ show l1 ++ " != " ++ show l2)
+-- Simplest solution trusting the simplification (drawback: potentialy hide errors in the rewrite rules)
+  joinA (Just (FloatLit f1)) (Just (FloatLit f2)) = Just (FloatLit (max f1 f2))
+  joinA (Just l1) (Just l2)                       = if l1 == l2 then Just l1 else error ("ouch, that shouldn't have happened " ++ show l1 ++ " != " ++ show l2)
 
   modifyA :: ClassId -> EGraph (Maybe Lit) TreeF -> EGraph (Maybe Lit) TreeF
   modifyA c eg
@@ -177,21 +184,18 @@ rewritesTreeF =
     , pat (NodeF DivInt ["a", pat (intLeafFPattner 1)])     := "a" -- a / 1 = a
     , pat (NodeF DivFloat ["a", pat (floatLeafFPattner 1)]) := "a" -- a / 1.0 = a
     --      DIVISION BY ITSELF
--- Removing division by itself, does not hold for 0
---    , pat (NodeF DivInt ["a", "a"])   := pat (intLeafFPattner 1)   -- a / a = 1
---    , pat (NodeF DivFloat ["a", "a"]) := pat (floatLeafFPattner 1) -- a / a = 1.0
+    , pat (NodeF DivInt ["a", "a"])   := pat (intLeafFPattner 1)   :| nonZero  "a"   -- a / a = 1
+    , pat (NodeF DivFloat ["a", "a"]) := pat (floatLeafFPattner 1) :| nonZero "a"-- a / a = 1.0
     --      CANCELATION
--- Removing cancelation, does not hold for 0
---    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b" -- a * b / a = b
---    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "b"])     := "a" -- a * b / b = a
---    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b" -- a * b / a = b
---    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "b"]) := "a" -- a * b / b = a
+      , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b"  :| nonZero "a" -- a * b / a = b
+      , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "b"])     := "a"  :| nonZero "b" -- a * b / b = a
+      , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b"  :| nonZero "a" -- a * b / a = b
+      , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "b"]) := "a"  :| nonZero "b" -- a * b / b = a
     --      REMAINDER MOD 1
     , pat (NodeF ModInt ["a", pat (intLeafFPattner 1)]) := pat (intLeafFPattner 0) -- a % 1 = 0
     --      REMAINDER MOD DIVISOR
--- Removing Remainder cancelation, does not hold for 0
---    , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "a"]) := pat (intLeafFPattner 0) -- (a * b) % a = 0
---    , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "b"]) := pat (intLeafFPattner 0) -- (a * b) % b = 0
+    , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "a"]) := pat (intLeafFPattner 0) :| nonZero "a" -- (a * b) % a = 0
+    , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "b"]) := pat (intLeafFPattner 0) :| nonZero "b" -- (a * b) % b = 0
     --  LIST
     , pat (NodeF Len [pat (NodeF Reverse ["a"])])           := pat (NodeF Len ["a"])       -- Len . Reverser = Len
     , pat (NodeF Head [pat (NodeF Singleton ["a"])])        := "a"                         -- Head . Singleton = Id
@@ -203,6 +207,19 @@ rewritesTreeF =
     , pat (NodeF Take [pat (NodeF Len ["a"]), "a"])         := "a"                         -- Take (Len a) a = a 
     , pat (NodeF Range ["a", "a", "a"])                     := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
   ]
+
+unsafeGetSubst :: Pattern TreeF -> Subst -> ClassId
+unsafeGetSubst (NonVariablePattern _) _ = error "unsafeGetSubst: NonVariablePattern; expecting VariablePattern"
+unsafeGetSubst (VariablePattern v) subst = case IM.lookup v subst of
+      Nothing       -> error "Searching for non existent bound var in conditional"
+      Just class_id -> class_id
+
+nonZero :: Pattern TreeF -> RewriteCondition (Maybe Lit) TreeF
+nonZero v subst egr =
+      dataValue /= Just (IntLit 0)
+  &&  dataValue /= Just (FloatLit 0)
+  &&  isJust dataValue -- Argument or evaluation can potentialy result in zero
+        where dataValue = egr^._class (unsafeGetSubst v subst)._data
 
 
 runEqualitySaturationOnTree :: Tree -> Tree
