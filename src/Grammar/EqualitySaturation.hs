@@ -115,6 +115,7 @@ rewritesTreeF =
   [ -- IF
       pat (NodeF If [pat (boolLeafFPattern True), "a", "b"])  := "a"  -- IF True a else b  = a
     , pat (NodeF If [pat (boolLeafFPattern False), "a", "b"]) := "b"  -- IF False a else b = b
+    , pat (NodeF If ["a", pat (boolLeafFPattern True), pat (boolLeafFPattern True)]) := pat (boolLeafFPattern True)
     -- PAIR
     , pat (NodeF Fst [pat (NodeF ToPair ["a", "b"])]) := "a" -- Fst
     , pat (NodeF Snd [pat (NodeF ToPair ["a", "b"])]) := "b" -- Snd
@@ -128,9 +129,8 @@ rewritesTreeF =
     , pat (NodeF Or ["a", "a"])      := "a"                          -- a OR a             = a
     , pat (NodeF If ["a", "b", "b"]) := "b"                          -- IF a then b else b = b
     -- BOOLEAN ALGEBRA
--- Removing comutative, causing impossible: couldn't find v in subst? TODO: Investigate
---    , pat (NodeF Or ["a", "b"])                               := pat (NodeF Or ["b", "a"])      -- a Or b = b Or a
---    , pat (NodeF And ["a", "b"])                              := pat (NodeF And ["b", "a"])     -- a And b = b And a
+    , pat (NodeF Or ["a", "b"])                               := pat (NodeF Or ["b", "a"])      -- a Or b = b Or a
+    , pat (NodeF And ["a", "b"])                              := pat (NodeF And ["b", "a"])     -- a And b = b And a
     , pat (NodeF Or [pat (boolLeafFPattern True), "a"])       := pat (boolLeafFPattern True)    -- True Or a  = True
     , pat (NodeF Or ["a", pat (boolLeafFPattern True)])       := pat (boolLeafFPattern True)    -- a Or True  = True
     , pat (NodeF Or [pat (boolLeafFPattern False), "a"])      := "a"                            -- False Or a = a
@@ -151,9 +151,8 @@ rewritesTreeF =
     , pat (NodeF AddInt ["a", pat (NodeF AddInt ["b", "c"])])     := pat (NodeF AddInt [pat (NodeF AddInt ["a", "b"]), "c"])     -- a + (b + c) = (a + b) + c
     , pat (NodeF AddFloat ["a", pat (NodeF AddFloat ["b", "c"])]) := pat (NodeF AddFloat [pat (NodeF AddFloat ["a", "b"]), "c"]) -- a + (b + c) = (a + b) + c
     --      COMUTATIVE
--- Removing comutative, causing impossible: couldn't find v in subst? TODO: Investigate
---    , pat (NodeF AddInt ["a", "b"])   := pat (NodeF AddInt ["b", "c"])   -- a + b = b + a
---    , pat (NodeF AddFloat ["a", "b"]) := pat (NodeF AddFloat ["b", "a"]) -- a + b = b + a
+    , pat (NodeF AddInt ["a", "b"])   := pat (NodeF AddInt ["b", "a"])   -- a + b = b + a
+    , pat (NodeF AddFloat ["a", "b"]) := pat (NodeF AddFloat ["b", "a"]) -- a + b = b + a
     --    SUBTRACTION
     --      SUBTRACT BY 0
     , pat (NodeF SubInt ["a", pat (intLeafFPattner 0)])     := "a" -- a - 0 = a
@@ -176,9 +175,8 @@ rewritesTreeF =
     , pat (NodeF MultInt ["a", pat (NodeF MultInt ["b", "c"])])     := pat (NodeF MultInt [pat (NodeF MultInt ["a", "b"]), "c"])     -- a * (b * c) = (a * b) * c
     , pat (NodeF MultFloat ["a", pat (NodeF MultFloat ["b", "c"])]) := pat (NodeF MultFloat [pat (NodeF MultFloat ["a", "b"]), "c"]) -- a * (b * c) = (a * b) * c
     --      COMUTATIVE
--- Removing comutative, causing impossible: couldn't find v in subst? TODO: Investigate
---    , pat (NodeF MultInt ["a", "b"])   := pat (NodeF MultInt ["b", "a"])   -- a * b = b * a
---    , pat (NodeF MultFloat ["a", "b"]) := pat (NodeF MultFloat ["b", "a"]) -- a * b = b * a
+    , pat (NodeF MultInt ["a", "b"])   := pat (NodeF MultInt ["b", "a"])   -- a * b = b * a
+    , pat (NodeF MultFloat ["a", "b"]) := pat (NodeF MultFloat ["b", "a"]) -- a * b = b * a
     --    DIVISION
     --      DIVISION BY 1
     , pat (NodeF DivInt ["a", pat (intLeafFPattner 1)])     := "a" -- a / 1 = a
@@ -187,10 +185,10 @@ rewritesTreeF =
     , pat (NodeF DivInt ["a", "a"])   := pat (intLeafFPattner 1)   :| nonZero  "a"   -- a / a = 1
     , pat (NodeF DivFloat ["a", "a"]) := pat (floatLeafFPattner 1) :| nonZero "a"-- a / a = 1.0
     --      CANCELATION
-      , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b"  :| nonZero "a" -- a * b / a = b
-      , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "b"])     := "a"  :| nonZero "b" -- a * b / b = a
-      , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b"  :| nonZero "a" -- a * b / a = b
-      , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "b"]) := "a"  :| nonZero "b" -- a * b / b = a
+    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b"  :| nonZero "a" -- a * b / a = b
+    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "b"])     := "a"  :| nonZero "b" -- a * b / b = a
+    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b"  :| nonZero "a" -- a * b / a = b
+    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "b"]) := "a"  :| nonZero "b" -- a * b / b = a
     --      REMAINDER MOD 1
     , pat (NodeF ModInt ["a", pat (intLeafFPattner 1)]) := pat (intLeafFPattner 0) -- a % 1 = 0
     --      REMAINDER MOD DIVISOR
