@@ -113,9 +113,16 @@ floatLeafFPattner f = LeafF (Literal (FloatLit f))
 rewritesTreeF :: [Rewrite (Maybe Lit) TreeF]
 rewritesTreeF =
   [ -- IF
-      pat (NodeF If [pat (boolLeafFPattern True), "a", "b"])  := "a"  -- IF True a else b  = a
-    , pat (NodeF If [pat (boolLeafFPattern False), "a", "b"]) := "b"  -- IF False a else b = b
-    , pat (NodeF If ["a", pat (boolLeafFPattern True), pat (boolLeafFPattern True)]) := pat (boolLeafFPattern True)
+      pat (NodeF If [pat (boolLeafFPattern True), "a", "b"])  := "a"  -- If True then a else b  = a
+    , pat (NodeF If [pat (boolLeafFPattern False), "a", "b"]) := "b"  -- If False then a else b = b
+    , pat (NodeF If ["a", pat (boolLeafFPattern True), pat (boolLeafFPattern True)])   := pat (boolLeafFPattern True)  -- If a then True else True = True
+    , pat (NodeF If ["a", pat (boolLeafFPattern False), pat (boolLeafFPattern False)]) := pat (boolLeafFPattern False) -- If a then False else False = False
+    , pat (NodeF If ["a", pat (boolLeafFPattern True), pat (boolLeafFPattern False)])  := "a"                   -- If a then True else False = a
+    , pat (NodeF If ["a", pat (boolLeafFPattern False), pat (boolLeafFPattern True)])  := pat (NodeF Not ["a"]) -- If a then False else True = !a
+    , pat (NodeF If ["a", "b", pat (boolLeafFPattern False)])  := pat (NodeF And ["a", "b"])                    -- If a then b else False = a And b
+    , pat (NodeF If ["a", "b", pat (boolLeafFPattern True)])   := pat (NodeF Or [pat (NodeF Not ["a"]), "b"])   -- If a then b else True = !a Or b
+    , pat (NodeF If ["a", pat (boolLeafFPattern False), "b"])  := pat (NodeF And [pat (NodeF Not ["a"]), "b"])  -- If a then False else b = !a And b
+    , pat (NodeF If ["a", pat (boolLeafFPattern True), "b"])   := pat (NodeF Or ["a", "b"])                     -- If a then True else True = a Or b
     -- PAIR
     , pat (NodeF Fst [pat (NodeF ToPair ["a", "b"])]) := "a" -- Fst
     , pat (NodeF Snd [pat (NodeF ToPair ["a", "b"])]) := "b" -- Snd
