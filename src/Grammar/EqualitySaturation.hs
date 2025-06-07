@@ -67,6 +67,7 @@ instance Analysis (Maybe Lit) TreeF where
 -- PROBLEM: hotgp-exe: ouch, that shouldn't have happened FloatLit (-4461.4644) != FloatLit (-4461.465)
 -- Simplest solution trusting the simplification (drawback: potentialy hide errors in the rewrite rules)
   joinA (Just (FloatLit f1)) (Just (FloatLit f2)) = Just (FloatLit (max f1 f2))
+  joinA (Just (IntLit i1)) (Just (IntLit i2))     = Just (IntLit (max i1 i2)) -- necessary for for fromIntegral
   joinA (Just l1) (Just l2)                       = if l1 == l2 then Just l1 else error ("ouch, that shouldn't have happened " ++ show l1 ++ " != " ++ show l2)
 
   modifyA :: ClassId -> EGraph (Maybe Lit) TreeF -> EGraph (Maybe Lit) TreeF
