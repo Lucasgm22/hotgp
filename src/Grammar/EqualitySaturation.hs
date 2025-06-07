@@ -123,6 +123,7 @@ rewritesTreeF =
     , pat (NodeF If ["a", "b", pat (boolLeafFPattern True)])   := pat (NodeF Or [pat (NodeF Not ["a"]), "b"])   -- If a then b else True = !a Or b
     , pat (NodeF If ["a", pat (boolLeafFPattern False), "b"])  := pat (NodeF And [pat (NodeF Not ["a"]), "b"])  -- If a then False else b = !a And b
     , pat (NodeF If ["a", pat (boolLeafFPattern True), "b"])   := pat (NodeF Or ["a", "b"])                     -- If a then True else True = a Or b
+    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"])                 -- If !a then b else c = IF a then c else b
     -- PAIR
     , pat (NodeF Fst [pat (NodeF ToPair ["a", "b"])]) := "a" -- Fst
     , pat (NodeF Snd [pat (NodeF ToPair ["a", "b"])]) := "b" -- Snd
@@ -146,7 +147,9 @@ rewritesTreeF =
     , pat (NodeF And ["a", pat (boolLeafFPattern True)])      := "a"                            -- a And True  = a
     , pat (NodeF And [pat (boolLeafFPattern False), "a"])     := pat (boolLeafFPattern False)   -- False And a = False
     , pat (NodeF And ["a", pat (boolLeafFPattern False)])     := pat (boolLeafFPattern False)   -- a And False = False
-    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"]) -- IF !a then b else c = IF a then c else b
+    , pat (NodeF Not [pat (NodeF Not ["a"])])                 := "a"                            -- !!a = a
+    , pat (NodeF Or [pat (NodeF And ["a", "c"]), pat (NodeF And ["b, c"])]) := pat (NodeF And [pat (NodeF Or ["a", "b"]), "c"])  -- (a And c) Or (b And c) = (a Or b) And c
+    , pat (NodeF And [pat (NodeF Or ["a", "c"]), pat (NodeF Or ["b, c"])])  := pat (NodeF Or [pat (NodeF And ["a", "b"]), "c"])  -- (a Or c) And (b Or c) = (a And b) Or c
     --  ARITHMETICS
     --    ADDITION
     --      ADD BY 0
@@ -211,6 +214,12 @@ rewritesTreeF =
     , pat (NodeF Reverse [pat (NodeF Reverse ["a"])])       := "a"                         -- Reverse . Reverse = Id
     , pat (NodeF Take [pat (NodeF Len ["a"]), "a"])         := "a"                         -- Take (Len a) a = a 
     , pat (NodeF Range ["a", "a", "a"])                     := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
+    -- INT COMPARISON
+    , pat (NodeF EqInt ["a", "b"])  := pat (NodeF EqInt ["b", "a"])  -- a == b = b == a
+    , pat (NodeF MinInt ["a", "b"]) := pat (NodeF MinInt ["b", "a"]) -- min a b = min b a
+    , pat (NodeF MaxInt ["a", "b"]) := pat (NodeF MaxInt ["b", "a"]) -- max a b = max b a
+    , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MinInt ["a", "b"])])]) := pat (NodeF GtInt ["a", "b"]) -- !(a == min a b) = a > b
+    , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MaxInt ["a", "b"])])]) := pat (NodeF LtInt ["a", "b"]) -- !(a == max a b) = a < b
   ]
 
 unsafeGetSubst :: Pattern TreeF -> Subst -> ClassId
