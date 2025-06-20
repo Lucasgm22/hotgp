@@ -18,7 +18,7 @@ import Evolution.Generate (ramped)
 import Evolution.Helpers (hoistState, randomR, tupleToList)
 import Evolution.Individual
 import Evolution.Mutation (mutate)
-import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight)
+import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight, runEqualitySaturationOnTree)
 import Pretty (Pretty (pretty))
 import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
@@ -88,7 +88,7 @@ runEvolution cfg = do
 
 -- | Creates the initial population with the given config
 initPop :: (Fitness a) => Config a -> St (SortedPop a)
-initPop cfg = SL.toSortedList . map (mkIndividual cfg) <$> ramped cfg
+initPop cfg = SL.toSortedList . map (mkIndividual cfg . runEqualitySaturationOnTree) <$> ramped cfg
 
 -- | Runs the step of the evolution, known as Steady State Replace
 steadyStateReplace :: (Fitness a) => Config a -> SortedPop a -> St (Evaluations, SortedPop a)
@@ -99,7 +99,7 @@ steadyStateReplace cfg pop = do
   xMen <- mapM (doMutation cfg) children
 
   let popTrees = map _indTree $ SL.fromSortedList pop
-      withoutDuplication = filter (`notElem` popTrees) xMen
+      withoutDuplication = filter (`notElem` popTrees) (runEqualitySaturationOnTree <$> xMen)
       evaluations = length children -- withoutDuplication
       newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
   return (evaluations, newPop)

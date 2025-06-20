@@ -31,6 +31,4 @@ bestIndividual = head . SL.fromSortedList
 
 -- | Creates an individual
 mkIndividual :: (Fitness a) => Config a -> Tree -> Individual a
-mkIndividual config tree = MkIndividual computedTree (_fitnessFunction config computedTree)
-  where
-    computedTree = runEqualitySaturationOnTree tree
+mkIndividual config tree = MkIndividual tree (_fitnessFunction config tree)
