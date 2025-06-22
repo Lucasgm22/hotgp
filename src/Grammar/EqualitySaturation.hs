@@ -42,7 +42,7 @@ toTreeF :: Tree -> Fix TreeF
 toTreeF (Leaf _ t)               = Fix $ LeafF t
 toTreeF (Grammar.Core.Node _ op args) = Fix $ NodeF op (toTreeF <$> args)
 
--- Transform Fixed point notation of Tree to only Tree, calculates Measure like in Grammar.Helpers#computeMeasure
+-- | Transform Fixed point notation of Tree to only Tree, calculates Measure like in Grammar.Helpers#computeMeasure
 toTree :: Fix TreeF -> Tree
 toTree = toTree' 0
   where
@@ -78,67 +78,68 @@ instance Analysis (Maybe Lit) TreeF where
           let (c', eg') = represent (Fix (LeafF (Literal l))) eg
            in snd $ merge c c' eg'
 
--- The cost function
+{- | The cost function to be applied in equality saturation.
+Minimizes the depth of the tree
+-}
 costTreeF :: CostFunction TreeF Int
 costTreeF = \case
-  -- LeafF
-  LeafF ter              -> 1
-  -- NodeF
-  --   Int
-  NodeF AddInt ns        -> sum ns + 3
-  NodeF SubInt ns        -> sum ns + 3
-  NodeF DivInt ns        -> sum ns + 2
-  --   Float
-  NodeF AddFloat ns      -> sum ns + 3
-  NodeF SubFloat ns      -> sum ns + 3
-  NodeF DivFloat ns      -> sum ns + 2
-  NodeF Sqrt ns          -> sum ns + 2
-  --   If
-  NodeF If ns            -> sum ns + 2
-  -- Defaul Cost
-  NodeF _ ns             -> sum ns + 1
+  LeafF _    -> 1
+  NodeF _ ns -> maximum ns + 2
 
 
 -- Auxiliary functions for the rewrite function
 class LeafPetternable a where
+  -- | Transforms the value in a LeafF of Pattern TreeF
   toLeafPat :: a -> Pattern TreeF
 
 instance LeafPetternable Bool where
+  -- | Transforms the Boo lvalue in a LeafF of Pattern TreeF
   toLeafPat :: Bool -> Pattern TreeF
   toLeafPat b = pat $ LeafF $ Literal $ BoolLit b
 
 instance LeafPetternable Int where
+  -- | Transforms the Int value in a LeafF of Pattern TreeF
   toLeafPat :: Int -> Pattern TreeF
   toLeafPat i = pat $ LeafF $ Literal $ IntLit i
 
 instance LeafPetternable Float where
+  -- | Transforms the Float value in a LeafF of Pattern TreeF
   toLeafPat :: Float -> Pattern TreeF
   toLeafPat f = pat $ LeafF $ Literal $ FloatLit f
 
+-- | The Int zero
 zeroI :: Int
 zeroI = 0
 
+-- | The Float zero
 zeroF :: Float
 zeroF = 0
 
+-- | The Int one
 oneI :: Int
 oneI = 1
 
+-- | The Float one
 oneF :: Float
 oneF = 1
 
+-- | The rewrite rules to be applied in equality saturarion.
 rewritesTreeF :: [Rewrite (Maybe Lit) TreeF]
 rewritesTreeF =
   [ -- IF
-      pat (NodeF If [toLeafPat True, "a", "b"])             := "a" -- If True then a else b  = a
-    , pat (NodeF If [toLeafPat False, "a", "b"])            := "b" -- If False then a else b = b
-    , pat (NodeF If ["a", toLeafPat True, toLeafPat False]) := "a" -- If a then True else False = a
-    , pat (NodeF If ["a", toLeafPat False, toLeafPat True]) := pat (NodeF Not ["a"]) -- If a then False else True = !a
-    , pat (NodeF If ["a", "b", toLeafPat False])            := pat (NodeF And ["a", "b"]) -- If a then b else False = a And b
-    , pat (NodeF If ["a", "b", toLeafPat True])             := pat (NodeF Or [pat (NodeF Not ["a"]), "b"])  -- If a then b else True = !a Or b
-    , pat (NodeF If ["a", toLeafPat False, "b"])            := pat (NodeF And [pat (NodeF Not ["a"]), "b"]) -- If a then False else b = !a And b
-    , pat (NodeF If ["a", toLeafPat True, "b"])             := pat (NodeF Or ["a", "b"]) -- If a then True else True = a Or b
-    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])      := pat (NodeF If ["a", "c", "b"]) -- If !a then b else c = IF a then c else b
+      pat (NodeF If [toLeafPat True, "a", "b"])               := "a" -- If True then a else b  = a
+    , pat (NodeF If [toLeafPat False, "a", "b"])              := "b" -- If False then a else b = b
+    , pat (NodeF If ["a", toLeafPat True, toLeafPat False])   := "a" -- If a then True else False = a
+    , pat (NodeF If ["a", toLeafPat False, toLeafPat True])   := pat (NodeF Not ["a"]) -- If a then False else True = !a
+    , pat (NodeF If ["a", "b", toLeafPat False])              := pat (NodeF And ["a", "b"]) -- If a then b else False = a And b
+    , pat (NodeF If ["a", "b", toLeafPat True])               := pat (NodeF Or [pat (NodeF Not ["a"]), "b"])  -- If a then b else True = !a Or b
+    , pat (NodeF If ["a", toLeafPat False, "b"])              := pat (NodeF And [pat (NodeF Not ["a"]), "b"]) -- If a then False else b = !a And b
+    , pat (NodeF If ["a", toLeafPat True, "b"])               := pat (NodeF Or ["a", "b"]) -- If a then True else b = a Or b
+    , pat (NodeF If [pat (NodeF Not ["a"]), "b", "c"])        := pat (NodeF If ["a", "c", "b"]) -- If !a then b else c = IF a then c else b
+    , pat (NodeF If [pat (NodeF GtInt ["a", "b"]), "b", "a"]) := pat (NodeF MinInt ["a", "b"]) -- If (a > b) then b else a = min a b
+    , pat (NodeF If [pat (NodeF GtInt ["a", "b"]), "a", "b"]) := pat (NodeF MaxInt ["a", "b"]) -- If (a > b) then a else b = max a b
+    , pat (NodeF If [pat (NodeF LtInt ["a", "b"]), "a", "b"]) := pat (NodeF MinInt ["a", "b"]) -- If (a < b) then a else b = min a b
+    , pat (NodeF If [pat (NodeF LtInt ["a", "b"]), "b", "a"]) := pat (NodeF MaxInt ["a", "b"]) -- If (a < b) then b else a = max a b
     -- PAIR
     , pat (NodeF Fst [pat (NodeF ToPair ["a", "b"])]) := "a" -- Fst . ToPair $ a b = a
     , pat (NodeF Snd [pat (NodeF ToPair ["a", "b"])]) := "b" -- Snd . ToPair $ a b = b
@@ -179,6 +180,11 @@ rewritesTreeF =
     --      SUBTRACT BY ITSELF
     , pat (NodeF SubInt ["a", "a"])   := toLeafPat zeroI  -- a - a = 0
     , pat (NodeF SubFloat ["a", "a"]) := toLeafPat zeroF -- a - a = 0.0
+    --      CANCELATIONa
+    , pat (NodeF AddInt ["a", pat (NodeF SubInt ["b", "a"])])     := "b" -- a + (b - a) = b
+    , pat (NodeF AddFloat ["a", pat (NodeF SubFloat ["b", "a"])]) := "b" -- a + (b - a) = b
+    , pat (NodeF SubInt [pat (NodeF AddInt ["a", "b"]), "a"])     := "b" -- (a + b) - a = b
+    , pat (NodeF SubFloat [pat (NodeF AddFloat ["a", "b"]), "a"]) := "b" -- (a + b) - a = b
     --    MULTIPLICATION
     --      MULTIPLY BY 1
     , pat (NodeF MultInt [toLeafPat oneI, "a"])   := "a" -- 1 * a = a
@@ -200,8 +206,8 @@ rewritesTreeF =
     , pat (NodeF DivInt ["a", "a"])   := toLeafPat oneI :| nonZero "a" -- a / a = 1
     , pat (NodeF DivFloat ["a", "a"]) := toLeafPat oneF :| nonZero "a" -- a / a = 1.0
     --      CANCELATION
-    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b"  :| nonZero "a" -- a * b / a = b
-    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b"  :| nonZero "a" -- a * b / a = b
+    , pat (NodeF DivInt [pat (NodeF MultInt ["a", "b"]), "a"])     := "b" :| nonZero "a" -- (a * b) / a = b
+    , pat (NodeF DivFloat [pat (NodeF MultFloat ["a", "b"]), "a"]) := "b" :| nonZero "a" -- (a * b) / a = b
     --      REMAINDER MOD 1
     , pat (NodeF ModInt ["a", toLeafPat oneI]) := toLeafPat zeroI -- a % 1 = 0
     --      REMAINDER DIVISION OF A MULTIPLE
@@ -217,11 +223,12 @@ rewritesTreeF =
     , pat (NodeF Take [pat (NodeF Len ["a"]), "a"])         := "a" -- Take (Len a) a = a 
     , pat (NodeF Range ["a", "a", "a"])                     := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
     -- INT COMPARISON
-    , pat (NodeF EqInt ["a", "b"])  := pat (NodeF EqInt ["b", "a"]) -- a == b = b == a
-    , pat (NodeF MinInt ["a", "b"]) := pat (NodeF MinInt ["b", "a"]) -- min a b = min b a
-    , pat (NodeF MaxInt ["a", "b"]) := pat (NodeF MaxInt ["b", "a"]) -- max a b = max b a
-    , pat (NodeF MinInt [pat (NodeF MinInt ["a", "b"]), "c"]) := pat (NodeF MinInt ["a", pat (NodeF MinInt ["b", "c"])]) -- min (min a b) c = min a (min b c)
-    , pat (NodeF MaxInt [pat (NodeF MaxInt ["a", "b"]), "c"]) := pat (NodeF MaxInt ["a", pat (NodeF MaxInt ["b", "c"])]) -- min (min a b) c = min a (min b c)
+    , pat (NodeF MinInt ["a", "b"])                            := pat (NodeF MinInt ["b", "a"]) -- min a b = min b a
+    , pat (NodeF MaxInt ["a", "b"])                            := pat (NodeF MaxInt ["b", "a"]) -- max a b = max b a
+    , pat (NodeF MinInt [pat (NodeF MinInt ["a", "b"]), "c"])  := pat (NodeF MinInt ["a", pat (NodeF MinInt ["b", "c"])]) -- min (min a b) c = min a (min b c)
+    , pat (NodeF MaxInt [pat (NodeF MaxInt ["a", "b"]), "c"])  := pat (NodeF MaxInt ["a", pat (NodeF MaxInt ["b", "c"])]) -- min (min a b) c = min a (min b c)
+    , pat (NodeF MinInt ["a", pat (NodeF MultInt ["a", "a"])]) := "a" -- min (a a*a) = a
+    , pat (NodeF MaxInt ["a", pat (NodeF MultInt ["a", "a"])]) := pat (NodeF MultInt ["a", "a"]) -- max (a a*a) = a*a
     -- NOT GEQ == LT and NOT LEQ == GT
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MinInt ["a", "b"])])]) := pat (NodeF GtInt ["a", "b"]) -- !(a == min a b) = a > b
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MaxInt ["a", "b"])])]) := pat (NodeF LtInt ["a", "b"]) -- !(a == max a b) = a < b
