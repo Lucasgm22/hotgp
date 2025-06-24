@@ -84,7 +84,7 @@ Minimizes the depth of the tree
 costTreeF :: CostFunction TreeF Int
 costTreeF = \case
   LeafF _    -> 1
-  NodeF _ ns -> maximum ns + 2
+  NodeF _ ns -> 2 * sum ns + 1
 
 
 -- Auxiliary functions for the rewrite function
