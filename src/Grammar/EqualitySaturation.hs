@@ -249,4 +249,6 @@ nonZero v subst egr =
 
 
 runEqualitySaturationOnTree :: Tree -> Tree
-runEqualitySaturationOnTree t = toTree $ fst (equalitySaturation (toTreeF t) rewritesTreeF costTreeF)
+runEqualitySaturationOnTree t = if getHeight saturated <= 15 then saturated else error $ "tree became to big, h = " ++ show (getHeight saturated)
+  where
+    saturated = toTree $ fst (equalitySaturation (toTreeF t) rewritesTreeF costTreeF)

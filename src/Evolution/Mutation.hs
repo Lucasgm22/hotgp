@@ -26,9 +26,6 @@ import qualified System.Random as R
 -- | Replaces that subtree with a different one, of the same output type.
 replaceSubtree :: Ord a => Config a -> Mutation
 replaceSubtree config tree =
-  if getCurrentDepth tree > _maxTreeDepth config
-  then error $ "Tree is bigger than expected: current depth == " ++ show (getCurrentDepth tree) ++ ", max ==" ++ show (_maxTreeDepth config) ++ ", tree == " ++ show tree
-  else
   grow
     config
     (min (_maxMutationTreeDepth config) (_maxTreeDepth config - getCurrentDepth tree))
