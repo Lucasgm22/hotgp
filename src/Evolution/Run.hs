@@ -24,7 +24,6 @@ import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
 import Text.Printf
 import Data.SortedList (fromSortedList)
-import Control.Parallel.Strategies (rdeepseq, parMap)
 
 type LoggingFunction s a = (Maybe s -> UTCTime -> Evaluations -> SortedPop a -> IO s)
 
@@ -90,7 +89,7 @@ runEvolution cfg = do
 
 -- | Creates the initial population with the given config
 initPop :: (Fitness a) => Config a -> St (SortedPop a)
-initPop cfg = SL.toSortedList . map (mkIndividual cfg . computeMeasure) <$> ramped cfg
+initPop cfg = SL.toSortedList . map (mkIndividual cfg) <$> ramped cfg
 
 -- | Runs the step of the evolution, known as Steady State Replace
 steadyStateReplace :: (Fitness a) => Config a -> SortedPop a -> St (Evaluations, SortedPop a)
@@ -103,11 +102,10 @@ steadyStateReplace cfg pop = do
   let popTrees = map _indTree $ SL.fromSortedList pop
       withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
-      newPop = keepBest cfg pop $ mkIndividual cfg . computeMeasure <$> withoutDuplication
-      newPopTrees = map _indTree $ SL.fromSortedList newPop
-      (toSaturate, notToSaturate) = splitAt 100 newPopTrees -- sature 100 best
-      popSaturated = parMap rdeepseq (runEqSatUntilNoChange (_maxTreeDepth cfg) 3) toSaturate --runEqSatUntilNoChange (_maxTreeDepth cfg) 3 <$> toSaturate
-      newPopSaturated = SL.toSortedList $ mkIndividual cfg <$> popSaturated ++ notToSaturate
+      newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
+      (toSaturate, notToSaturate) = SL.splitAt 100 newPop -- sature 100 best
+      popSaturated = SL.map (mapIndividual (runEqSatUntilNoChange (_maxTreeDepth cfg) 3)) toSaturate -- run eq
+      newPopSaturated = popSaturated <> notToSaturate
   return (evaluations, newPopSaturated)
 
 -- | Given a probability, runs an action or uses a fallback

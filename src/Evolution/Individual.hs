@@ -3,6 +3,8 @@
 
 module Evolution.Individual where
 
+import GHC.Generics (Generic)
+
 import qualified Data.SortedList as SL
 import Evolution.Config
 import Evolution.Fitness
@@ -10,6 +12,9 @@ import Grammar
 
 data Individual a where
   MkIndividual :: (Fitness a) => {_indTree :: !Tree, _fitness :: a} -> Individual a
+
+mapIndividual :: (Fitness a) => (Tree -> Tree) -> Individual a -> Individual a
+mapIndividual f (MkIndividual tree fitness) = MkIndividual (f tree) fitness
 
 type SortedPop a = SL.SortedList (Individual a)
 
@@ -31,4 +36,6 @@ bestIndividual = head . SL.fromSortedList
 
 -- | Creates an individual
 mkIndividual :: (Fitness a) => Config a -> Tree -> Individual a
-mkIndividual config tree = MkIndividual tree (_fitnessFunction config tree)
+mkIndividual config tree = MkIndividual computedTree (_fitnessFunction config computedTree)
+  where
+    computedTree = computeMeasure tree
