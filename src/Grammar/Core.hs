@@ -1,9 +1,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Grammar.Core where
 
 import GHC.Generics (Generic)
+import Control.Parallel.Strategies (NFData)
 
 -- * Data Types
 
@@ -20,7 +22,7 @@ data GType
     GList !GType
   | -- | a -> b
     GLambda FunctionType
-  deriving (Show, Eq, Ord, Read, Generic)
+  deriving (Show, Eq, Ord, Read, Generic, NFData)
 
 -- | List of types of the arguments expected by the function
 type ArgTypes = [GType]
@@ -33,7 +35,7 @@ data FunctionType = MkFunctionType
   { _argTypes :: !ArgTypes,
     _outType :: !OutputType
   }
-  deriving (Show, Eq, Ord, Read, Generic)
+  deriving (Show, Eq, Ord, Read, Generic, NFData)
 
 -- Defines the arguments and output types for the whole program
 type ProgramType = FunctionType
@@ -50,28 +52,28 @@ data Lit
   | PairLit !Lit !Lit
   | ListLit !GType ![Lit]
   | LambdaLit !TypedTree
-  deriving (Show, Eq, Read, Generic, Ord)
+  deriving (Show, Eq, Read, Generic, Ord, NFData)
 
-data Measure = MkMeasure {_currentDepth :: !Int, _height :: !Int, _nodeCount :: !Int} deriving (Show, Eq, Read, Generic, Ord)
+data Measure = MkMeasure {_currentDepth :: !Int, _height :: !Int, _nodeCount :: !Int} deriving (Show, Eq, Read, Generic, Ord, NFData)
 
 -- | Values that do not receive inputs
 data Terminal
   = Arg !Int
   | Literal !Lit
-  deriving (Show, Eq, Read, Generic, Ord)
+  deriving (Show, Eq, Read, Generic, Ord, NFData)
 
 -- | The structure that represents a program written in this grammar
 data Tree
   = Leaf {_measure :: !(Maybe Measure), _terminal :: !Terminal}
   | Node {_measure :: !(Maybe Measure), _operation :: !Operation, _args :: ![Tree]}
-  deriving (Show, Eq, Read, Generic, Ord)
+  deriving (Show, Eq, Read, Generic, Ord, NFData)
 
 -- | A program combined with its expected inputs and output types
 data TypedTree = MkTypedTree
   { _tree :: !Tree,
     _type :: !FunctionType
   }
-  deriving (Show, Eq, Read, Generic, Ord)
+  deriving (Show, Eq, Read, Generic, Ord, NFData)
 
 -- All available operations in this grammar
 data Operation
@@ -128,7 +130,7 @@ data Operation
     ToPair
   | Fst
   | Snd
-  deriving (Show, Eq, Enum, Bounded, Ord, Read, Generic)
+  deriving (Show, Eq, Enum, Bounded, Ord, Read, Generic, NFData)
 
 -- * Shorthands
 

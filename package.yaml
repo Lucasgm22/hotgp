@@ -43,6 +43,7 @@ dependencies:
     - flat
     - unordered-containers
     - hegg
+    - parallel
 
 library:
     source-dirs: src

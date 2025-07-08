@@ -99,6 +99,7 @@ library
     , flat
     , hegg
     , mtl
+    , parallel
     , process
     , random
     , scientific
@@ -131,6 +132,7 @@ executable hotgp-exe
     , hegg
     , hotgp
     , mtl
+    , parallel
     , process
     , random
     , scientific
@@ -181,6 +183,7 @@ test-suite hotgp-test
     , hegg
     , hotgp
     , mtl
+    , parallel
     , process
     , random
     , scientific

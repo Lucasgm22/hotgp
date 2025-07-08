@@ -262,10 +262,12 @@ runEqualitySaturationOnTree costF t = saturated
 
 runEqSatUntilNoChange :: Int -> Int -> Tree -> Tree
 runEqSatUntilNoChange maxH n t
-  | t == t'             = t -- no change
-  | getHeight t' > maxH = runEqSatUntilNoChange maxH n t'' -- tree baceme to big
-  | n == 0              = t -- to much interactions
-  | otherwise           = runEqSatUntilNoChange maxH (n-1) t' -- next interaction
+  | n == 0 && getHeight t <= maxH   = t   -- to much interactions
+  | n == 0 && getHeight t > maxH    = runEqSatUntilNoChange maxH n t'' -- too much iteractions and to big
+  | t == t' && getHeight t' <= maxH = t'  -- no change
+  | t == t' && getHeight t' > maxH  = runEqSatUntilNoChange maxH n t''' -- no change and too big
+  | otherwise                       = runEqSatUntilNoChange maxH (n-1) t' -- next iteration
   where
-    t'  = runEqualitySaturationOnTree minimizeNodes t
-    t'' = runEqualitySaturationOnTree minimizeHeight t
+    t'   = runEqualitySaturationOnTree minimizeNodes t
+    t''  = runEqualitySaturationOnTree minimizeHeight t
+    t''' = runEqualitySaturationOnTree minimizeHeight t'

@@ -24,6 +24,7 @@ import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
 import Text.Printf
 import Data.SortedList (fromSortedList)
+import Control.Parallel.Strategies (rdeepseq, parMap)
 
 type LoggingFunction s a = (Maybe s -> UTCTime -> Evaluations -> SortedPop a -> IO s)
 
@@ -105,7 +106,7 @@ steadyStateReplace cfg pop = do
       newPop = keepBest cfg pop $ mkIndividual cfg . computeMeasure <$> withoutDuplication
       newPopTrees = map _indTree $ SL.fromSortedList newPop
       (toSaturate, notToSaturate) = splitAt 100 newPopTrees -- sature 100 best
-      popSaturated = runEqSatUntilNoChange (_maxTreeDepth cfg) 3 <$> toSaturate
+      popSaturated = parMap rdeepseq (runEqSatUntilNoChange (_maxTreeDepth cfg) 3) toSaturate --runEqSatUntilNoChange (_maxTreeDepth cfg) 3 <$> toSaturate
       newPopSaturated = SL.toSortedList $ mkIndividual cfg <$> popSaturated ++ notToSaturate
   return (evaluations, newPopSaturated)
 
