@@ -18,11 +18,12 @@ import Evolution.Generate (ramped)
 import Evolution.Helpers (hoistState, randomR, tupleToList)
 import Evolution.Individual
 import Evolution.Mutation (mutate)
-import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight, runEqualitySaturationOnTree)
+import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight, runEqSatUntilNoChange)
 import Pretty (Pretty (pretty))
 import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
 import Text.Printf
+import Data.SortedList (fromSortedList)
 
 type LoggingFunction s a = (Maybe s -> UTCTime -> Evaluations -> SortedPop a -> IO s)
 
@@ -88,7 +89,7 @@ runEvolution cfg = do
 
 -- | Creates the initial population with the given config
 initPop :: (Fitness a) => Config a -> St (SortedPop a)
-initPop cfg = SL.toSortedList . map (mkIndividual cfg . runEqualitySaturationOnTree) <$> ramped cfg
+initPop cfg = SL.toSortedList . map (mkIndividual cfg . computeMeasure) <$> ramped cfg
 
 -- | Runs the step of the evolution, known as Steady State Replace
 steadyStateReplace :: (Fitness a) => Config a -> SortedPop a -> St (Evaluations, SortedPop a)
@@ -99,10 +100,14 @@ steadyStateReplace cfg pop = do
   xMen <- mapM (doMutation cfg) children
 
   let popTrees = map _indTree $ SL.fromSortedList pop
-      withoutDuplication = filter (`notElem` popTrees) (runEqualitySaturationOnTree <$> xMen)
+      withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
-      newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
-  return (evaluations, newPop)
+      newPop = keepBest cfg pop $ mkIndividual cfg . computeMeasure <$> withoutDuplication
+      newPopTrees = map _indTree $ SL.fromSortedList newPop
+      (toSaturate, notToSaturate) = splitAt 100 newPopTrees -- sature 100 best
+      popSaturated = runEqSatUntilNoChange (_maxTreeDepth cfg) 3 <$> toSaturate
+      newPopSaturated = SL.toSortedList $ mkIndividual cfg <$> popSaturated ++ notToSaturate
+  return (evaluations, newPopSaturated)
 
 -- | Given a probability, runs an action or uses a fallback
 tossCoin :: Double -> a -> St a -> St a

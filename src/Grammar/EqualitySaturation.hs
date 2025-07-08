@@ -6,7 +6,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Grammar.EqualitySaturation (runEqualitySaturationOnTree) where
+module Grammar.EqualitySaturation (runEqSatUntilNoChange) where
 
 
 import Data.Equality.Utils
@@ -25,6 +25,8 @@ import Data.String (IsString(fromString))
 import Data.Equality.Matching.Database (Subst)
 import qualified Data.Maybe
 import Data.Maybe (isJust)
+import Pretty (Pretty(pretty))
+import Data.Equality.Saturation.Scheduler (BackoffScheduler (BackoffScheduler))
 
 -- | Fixed point of the structure that represents a program written in this grammar
 data TreeF a = LeafF !Terminal
@@ -81,10 +83,15 @@ instance Analysis (Maybe Lit) TreeF where
 {- | The cost function to be applied in equality saturation.
 Minimizes the depth of the tree
 -}
-costTreeF :: CostFunction TreeF Int
-costTreeF = \case
+minimizeNodes :: CostFunction TreeF Int
+minimizeNodes = \case
   LeafF _    -> 1
   NodeF _ ns -> 2 * sum ns + 1
+
+minimizeHeight :: CostFunction TreeF Int
+minimizeHeight = \case
+  LeafF _    -> 1
+  NodeF _ ns -> maximum ns + 1
 
 
 -- Auxiliary functions for the rewrite function
@@ -248,7 +255,17 @@ nonZero v subst egr =
         where dataValue = egr^._class (unsafeGetSubst v subst)._data
 
 
-runEqualitySaturationOnTree :: Tree -> Tree
-runEqualitySaturationOnTree t = if getHeight saturated <= 15 then saturated else error $ "tree became to big, h = " ++ show (getHeight saturated)
+runEqualitySaturationOnTree :: CostFunction TreeF Int -> Tree -> Tree
+runEqualitySaturationOnTree costF t = saturated
   where
-    saturated = toTree $ fst (equalitySaturation (toTreeF t) rewritesTreeF costTreeF)
+    saturated = toTree $ fst (equalitySaturation' (BackoffScheduler 100 10) (toTreeF t) rewritesTreeF costF)
+
+runEqSatUntilNoChange :: Int -> Int -> Tree -> Tree
+runEqSatUntilNoChange maxH n t
+  | t == t'             = t -- no change
+  | getHeight t' > maxH = runEqSatUntilNoChange maxH n t'' -- tree baceme to big
+  | n == 0              = t -- to much interactions
+  | otherwise           = runEqSatUntilNoChange maxH (n-1) t' -- next interaction
+  where
+    t'  = runEqualitySaturationOnTree minimizeNodes t
+    t'' = runEqualitySaturationOnTree minimizeHeight t
