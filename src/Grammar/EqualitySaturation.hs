@@ -6,7 +6,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module Grammar.EqualitySaturation (runEqSatUntilNoChange) where
+module Grammar.EqualitySaturation (runEqualitySaturationOnTree) where
 
 
 import Data.Equality.Utils
@@ -27,6 +27,7 @@ import qualified Data.Maybe
 import Data.Maybe (isJust)
 import Pretty (Pretty(pretty))
 import Data.Equality.Saturation.Scheduler (BackoffScheduler (BackoffScheduler))
+import GHC.Base (divInt)
 
 -- | Fixed point of the structure that represents a program written in this grammar
 data TreeF a = LeafF !Terminal
@@ -83,15 +84,10 @@ instance Analysis (Maybe Lit) TreeF where
 {- | The cost function to be applied in equality saturation.
 Minimizes the depth of the tree
 -}
-minimizeNodes :: CostFunction TreeF Int
-minimizeNodes = \case
+cost :: CostFunction TreeF Int
+cost = \case
   LeafF _    -> 1
   NodeF _ ns -> 2 * sum ns + 1
-
-minimizeHeight :: CostFunction TreeF Int
-minimizeHeight = \case
-  LeafF _    -> 1
-  NodeF _ ns -> maximum ns + 1
 
 
 -- Auxiliary functions for the rewrite function
@@ -255,19 +251,7 @@ nonZero v subst egr =
         where dataValue = egr^._class (unsafeGetSubst v subst)._data
 
 
-runEqualitySaturationOnTree :: CostFunction TreeF Int -> Tree -> Tree
-runEqualitySaturationOnTree costF t = saturated
+runEqualitySaturationOnTree :: Int -> Tree -> Tree
+runEqualitySaturationOnTree maxH t = if getHeight saturated <= maxH then saturated else t 
   where
-    saturated = toTree $ fst (equalitySaturation' (BackoffScheduler 100 10) (toTreeF t) rewritesTreeF costF)
-
-runEqSatUntilNoChange :: Int -> Int -> Tree -> Tree
-runEqSatUntilNoChange maxH n t
-  | n == 0 && getHeight t <= maxH   = t   -- to much interactions
-  | n == 0 && getHeight t > maxH    = runEqSatUntilNoChange maxH n t'' -- too much iteractions and to big
-  | t == t' && getHeight t' <= maxH = t'  -- no change
-  | t == t' && getHeight t' > maxH  = runEqSatUntilNoChange maxH n t''' -- no change and too big
-  | otherwise                       = runEqSatUntilNoChange maxH (n-1) t' -- next iteration
-  where
-    t'   = runEqualitySaturationOnTree minimizeNodes t
-    t''  = runEqualitySaturationOnTree minimizeHeight t
-    t''' = runEqualitySaturationOnTree minimizeHeight t'
+    saturated = toTree $ fst (equalitySaturation' (BackoffScheduler 100 10) (toTreeF t) rewritesTreeF cost)

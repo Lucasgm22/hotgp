@@ -18,7 +18,7 @@ import Evolution.Generate (ramped)
 import Evolution.Helpers (hoistState, randomR, tupleToList)
 import Evolution.Individual
 import Evolution.Mutation (mutate)
-import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight, runEqSatUntilNoChange)
+import Grammar (FunctionType (_argTypes), Tree, computeMeasure, getHeight, runEqualitySaturationOnTree)
 import Pretty (Pretty (pretty))
 import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
@@ -104,7 +104,7 @@ steadyStateReplace cfg pop = do
       evaluations = length children -- withoutDuplication
       newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
       (toSaturate, notToSaturate) = SL.splitAt 100 newPop -- sature 100 best
-      popSaturated = SL.map (mapIndividual (runEqSatUntilNoChange (_maxTreeDepth cfg) 3)) toSaturate -- run eq
+      popSaturated = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg))) toSaturate -- run eq
       newPopSaturated = popSaturated <> notToSaturate
   return (evaluations, newPopSaturated)
 
