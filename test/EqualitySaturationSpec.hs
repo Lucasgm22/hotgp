@@ -34,6 +34,6 @@ treeFTests :: TestTree
 treeFTests = testGroup "TreeF"
   [
       -- Equality saturation must run two times in this case in order to fully simplify the tree
-      testCase "rewrite solution for compare string lengths"  $ runEqualitySaturationOnTree (runEqualitySaturationOnTree solutionForCompareStringLengths) @?= expectedSymplification
+      testCase "rewrite solution for compare string lengths"  $ runEqualitySaturationOnTree 30 (runEqualitySaturationOnTree 30 solutionForCompareStringLengths) @?= expectedSymplification
   ]
 
