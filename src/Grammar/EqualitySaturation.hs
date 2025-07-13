@@ -158,6 +158,8 @@ rewritesTreeF =
     -- BOOLEAN ALGEBRA
     , pat (NodeF Or ["a", "b"])                                             := pat (NodeF Or ["b", "a"]) -- a Or b = b Or a
     , pat (NodeF And ["a", "b"])                                            := pat (NodeF And ["b", "a"]) -- a And b = b And a
+    , pat (NodeF Or [pat (NodeF Or ["a", "b"]), "c"])                       := pat (NodeF Or ["a", pat (NodeF Or ["b", "c"])]) -- (a Or b) Or c = a Or (b Or c)
+    , pat (NodeF And [pat (NodeF And ["a", "b"]), "c"])                     := pat (NodeF And ["a", pat (NodeF And ["b", "c"])]) -- (a And b) And c = a And (b And c)
     , pat (NodeF Or [toLeafPat True, "a"])                                  := toLeafPat True -- True Or a  = True
     , pat (NodeF Or [toLeafPat False, "a"])                                 := "a" -- False Or a = a
     , pat (NodeF And [toLeafPat True, "a"])                                 := "a" -- True And a  = a
@@ -168,7 +170,7 @@ rewritesTreeF =
     --  ARITHMETICS
     --    ADDITION
     --      ADD BY 0
-    , pat (NodeF AddInt [toLeafPat zeroI, "a"])     := "a" -- 0 + a = a
+    , pat (NodeF AddInt [toLeafPat zeroI, "a"])   := "a" -- 0 + a = a
     , pat (NodeF AddFloat [toLeafPat zeroF, "a"]) := "a" -- 0.0 + a = a
     --      ASSOCIATIVE
     , pat (NodeF AddInt ["a", pat (NodeF AddInt ["b", "c"])])     := pat (NodeF AddInt [pat (NodeF AddInt ["a", "b"]), "c"]) -- a + (b + c) = (a + b) + c
@@ -193,7 +195,7 @@ rewritesTreeF =
     , pat (NodeF MultInt [toLeafPat oneI, "a"])   := "a" -- 1 * a = a
     , pat (NodeF MultFloat [toLeafPat oneF, "a"]) := "a" -- 1.0 * a = a
     --      MULTIPLY BY 0
-    , pat (NodeF MultInt [toLeafPat zeroI, "a"])   := toLeafPat zeroI-- 0 * a = 0
+    , pat (NodeF MultInt [toLeafPat zeroI, "a"])   := toLeafPat zeroI -- 0 * a = 0
     , pat (NodeF MultFloat [toLeafPat zeroF, "a"]) := toLeafPat zeroF -- 0.0 * a = 0.0
     --      ASSOCIATIVE
     , pat (NodeF MultInt ["a", pat (NodeF MultInt ["b", "c"])])     := pat (NodeF MultInt [pat (NodeF MultInt ["a", "b"]), "c"]) -- a * (b * c) = (a * b) * c

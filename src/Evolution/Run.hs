@@ -24,6 +24,7 @@ import System.IO (hFlush, stdout)
 import System.Random.Internal (StdGen)
 import Text.Printf
 import Data.SortedList (fromSortedList)
+import Control.Parallel.Strategies (parMap, rdeepseq, parList, using, rseq)
 
 type LoggingFunction s a = (Maybe s -> UTCTime -> Evaluations -> SortedPop a -> IO s)
 
@@ -103,9 +104,9 @@ steadyStateReplace cfg pop = do
       withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
       newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
-      (toSaturate, notToSaturate) = SL.splitAt 100 newPop -- sature 100 best
-      popSaturated = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg))) toSaturate -- run eq
-      newPopSaturated = popSaturated <> notToSaturate
+      (toSaturate, notToSaturate) = SL.splitAt 10 newPop -- sature 10 best
+      popSaturated = map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg))) (SL.fromSortedList toSaturate)  `using` parList rseq -- run eqsat
+      newPopSaturated = SL.toSortedList popSaturated <> notToSaturate
   return (evaluations, newPopSaturated)
 
 -- | Given a probability, runs an action or uses a fallback
