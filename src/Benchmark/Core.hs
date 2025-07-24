@@ -6,6 +6,7 @@ import Data.Maybe (fromMaybe)
 import Data.Set (Set)
 import Evolution
 import Grammar
+import Data.Equality.Saturation (Rewrite)
 
 data Benchmark a = MkBenchmark
   { -- | Name of the csv file to be downloaded from github
@@ -27,7 +28,9 @@ data Benchmark a = MkBenchmark
     -- | Which constants are we going to allow for each of the types?
     _allowedConstants :: Map GType [St Lit],
     -- | Should this problem parse its output differently?
-    _customOutputParser :: Maybe OutputParser
+    _customOutputParser :: Maybe OutputParser,
+    -- | Rewrites to apply on equality saturation
+    _eqSatRewrites :: [Rewrite (Maybe Lit) TreeF]
   }
 
 type StatsCache = (Tree, (Float, Maybe Float))

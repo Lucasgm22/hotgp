@@ -31,7 +31,8 @@ replaceSpaceWithNewline =
         M.fromList
           [ (GChar, (pure . CharLit <$> [' ', '\n']) <> [CharLit <$> randomR ('!', '~')]),
             (GList GChar, [stLit <$> stringErc])
-          ]
+          ],
+      _eqSatRewrites = intRewrites <> listRewrites <> pairRewrites <> lambdaRewrites <> booleanRewrites <> intComparisonRewrites
     }
   where
     baseTypes = [GBool, GChar, GInt, GList GChar]

@@ -23,5 +23,6 @@ doubleLetters =
       _allowedConstants =
         M.fromList
           [ (GChar, [pure $ CharLit '!'])
-          ]
+          ],
+      _eqSatRewrites = booleanRewrites <> listRewrites <> lambdaRewrites
     }

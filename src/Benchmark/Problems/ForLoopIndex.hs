@@ -21,5 +21,6 @@ forLoopIndex =
       _trainCases = 100,
       _relevantTypes = S.fromList $ (allowUnaryLambdas <> allowList) [GInt, GChar, GList GChar],
       _customOutputParser = Nothing,
-      _allowedConstants = M.empty
+      _allowedConstants = M.empty,
+      _eqSatRewrites = intRewrites <> listRewrites <> lambdaRewrites
     }

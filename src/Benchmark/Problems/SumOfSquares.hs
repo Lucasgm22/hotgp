@@ -21,7 +21,8 @@ sumOfSquares =
       _trainCases = 50,
       _relevantTypes = S.fromList $ (allowUnaryLambdas <> allowList) [GInt, GBool],
       _customOutputParser = Nothing,
-      _allowedConstants = M.fromList [(GInt, [intRng, pure $ IntLit 0, pure $ IntLit 1])]
+      _allowedConstants = M.fromList [(GInt, [intRng, pure $ IntLit 0, pure $ IntLit 1])],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
     }
   where
     intRng = IntLit <$> randomR (-100, 100)

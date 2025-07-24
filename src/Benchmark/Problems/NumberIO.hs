@@ -24,5 +24,6 @@ numberIO =
         M.fromList
           [ (GFloat, [FloatLit <$> randomR (-100, 100)]),
             (GInt, [IntLit <$> randomR (-100, 100)])
-          ]
+          ],
+      _eqSatRewrites = intRewrites <> floatRewrites
     }

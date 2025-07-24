@@ -30,7 +30,8 @@ smallOrLarge =
         M.fromList
           [ (GInt, [intRng]),
             (GList GChar, pure . stLit <$> ["small", "large"])
-          ]
+          ],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites
     }
   where
     intRng = IntLit <$> randomR (-10_000, 10_000)

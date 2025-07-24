@@ -12,6 +12,7 @@ import Data.Monoid (Sum (Sum))
 import qualified Data.Set as S
 import Evolution (randomR)
 import Grammar
+import Data.Aeson.Encoding (bool)
 
 lastIndexOfZero :: Benchmark (Sum Integer)
 lastIndexOfZero =
@@ -27,5 +28,6 @@ lastIndexOfZero =
       _customOutputParser = Nothing,
       _allowedConstants =
         M.fromList
-          [(GInt, [return $ IntLit 0])]
+          [(GInt, [return $ IntLit 0])],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites <> pairRewrites
     }

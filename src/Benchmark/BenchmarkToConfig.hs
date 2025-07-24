@@ -23,7 +23,8 @@ makeConfig trainSet bench =
       _parentScalar = 0.9993,
       _crossoverRate = 0.5,
       _fullTable = buildTable termsAndOps treeDepth True,
-      _growTable = buildTable termsAndOps treeDepth False
+      _growTable = buildTable termsAndOps treeDepth False,
+      _eqSatRewriteRules = _eqSatRewrites bench
     }
   where
     popSize = 1000

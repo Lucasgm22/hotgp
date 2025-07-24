@@ -22,7 +22,8 @@ smallest =
       _customOutputParser = Nothing,
       _allowedConstants =
         M.fromList
-          [(GInt, [intRng])]
+          [(GInt, [intRng])],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites
     }
   where
     intRng = IntLit <$> randomR (-100, 100)

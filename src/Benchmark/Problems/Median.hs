@@ -22,5 +22,6 @@ median =
       _customOutputParser = Nothing,
       _allowedConstants =
         M.fromList
-          [(GInt, [IntLit <$> randomR (-100, 100)])]
+          [(GInt, [IntLit <$> randomR (-100, 100)])],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites
     }

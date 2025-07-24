@@ -22,5 +22,6 @@ negativeToZero =
       _customOutputParser = Nothing,
       _allowedConstants =
         M.fromList
-          [(GInt, [pure $ IntLit 0])]
+          [(GInt, [pure $ IntLit 0])],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
     }

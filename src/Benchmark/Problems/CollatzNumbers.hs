@@ -25,7 +25,8 @@ collatzNumbers =
         M.fromList
           [ (GBool, return . BoolLit <$> [True, False]),
             (GInt, [pure $ IntLit 0, pure $ IntLit 1, intRng])
-          ]
+          ],
+      _eqSatRewrites = intRewrites <> intComparisonRewrites <> booleanRewrites
     }
   where
     intRng = IntLit <$> randomR (-100, 100)

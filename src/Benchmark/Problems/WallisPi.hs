@@ -25,7 +25,8 @@ wallisPi =
         M.fromList
           [ (GFloat, [FloatLit <$> randomR (-500, 500)]),
             (GInt, [IntLit <$> randomR (-10, 10), IntLit <$> randomR (-500, 500)])
-          ]
+          ],
+      _eqSatRewrites = booleanRewrites <> intComparisonRewrites <> intRewrites <> floatRewrites <> listRewrites <> pairRewrites <> lambdaRewrites
     }
 
 fitnessMetric :: Lit -> Lit -> Sum Float

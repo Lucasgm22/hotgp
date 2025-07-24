@@ -103,9 +103,9 @@ steadyStateReplace cfg pop = do
   let popTrees = map _indTree $ SL.fromSortedList pop
       withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
-      newPop = keepBest cfg pop $ mkIndividual cfg <$> withoutDuplication
-      (toSaturate, notToSaturate) = SL.splitAt 10 newPop -- sature 10 best
-      popSaturated = map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg))) (SL.fromSortedList toSaturate)  `using` parList rseq -- run eqsat
+      newPop = keepBest cfg pop (mkIndividual cfg <$> withoutDuplication) -- keep best individuals
+      (toSaturate, notToSaturate) = SL.splitAt 1 newPop -- sature 10 best
+      popSaturated = map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) (SL.fromSortedList toSaturate)  `using` parList rseq -- run eqsat
       newPopSaturated = SL.toSortedList popSaturated <> notToSaturate
   return (evaluations, newPopSaturated)
 

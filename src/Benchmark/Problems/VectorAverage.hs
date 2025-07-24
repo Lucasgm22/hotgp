@@ -23,5 +23,6 @@ vectorAverage =
       _relevantTypes = S.fromList [GList GInt, GInt, GFloat, GBool],
       _customOutputParser = Nothing,
       _allowedConstants =
-        M.fromList [(GInt, [return $ IntLit 0]), (GFloat, [return $ FloatLit 0])]
+        M.fromList [(GInt, [return $ IntLit 0]), (GFloat, [return $ FloatLit 0])],
+      _eqSatRewrites = booleanRewrites <> intComparisonRewrites <> intRewrites <> floatRewrites <> listRewrites
     }

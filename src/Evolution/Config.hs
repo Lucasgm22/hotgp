@@ -5,7 +5,9 @@ module Evolution.Config where
 import qualified Data.Map as M
 import Evolution.Core (Depth)
 import Evolution.SamplerTable (SamplerTable)
-import Grammar (GType, ProgramType, Tree)
+import Grammar (GType, ProgramType, Tree, TreeF)
+import Grammar.Core
+import Data.Equality.Saturation (Rewrite)
 
 type Evaluations = Int
 
@@ -35,6 +37,8 @@ data Config a where
       -- | How much probability we keep for each rank position
       _parentScalar :: Double,
       -- | The probability of doing a crossover
-      _crossoverRate :: Double
+      _crossoverRate :: Double,
+      -- | Rewrites to apply on equality saturation
+      _eqSatRewriteRules :: [Rewrite (Maybe Lit) TreeF]
     } ->
     Config a

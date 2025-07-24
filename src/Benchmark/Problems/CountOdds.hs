@@ -34,4 +34,5 @@ countOdds =
                 ]
             )
           ]
+      , _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites 
     }

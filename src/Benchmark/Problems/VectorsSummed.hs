@@ -23,7 +23,8 @@ vectorsSummed =
       _relevantTypes = S.fromList $ (allowUnaryLambdas <> allowList) (allowPairs [GInt]),
       _customOutputParser = Nothing,
       _allowedConstants =
-        M.fromList [(GInt, [intRng])]
+        M.fromList [(GInt, [intRng])],
+      _eqSatRewrites = intRewrites <> listRewrites <> pairRewrites
     }
   where
     intRng = IntLit <$> randomR (-1000, 1000)

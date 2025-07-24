@@ -9,7 +9,7 @@ import Benchmark.Download (csvDirs, downloadBenchmark)
 import Benchmark.Helpers
 import Benchmark.Log
 import Control.Monad (unless, when)
-import Control.Monad.State.Strict (evalState, evalStateT)
+import Control.Monad.State.Strict (evalState, evalStateT, MonadState (put))
 import qualified Data.ByteString.Lazy as B
 import Data.Either (fromRight)
 import qualified Data.Map as M
@@ -32,6 +32,10 @@ runBenchmark :: (Fitness a, Monoid a, Show a) => FilePath -> Int -> Benchmark a 
 runBenchmark workDir seed benchmark = do
   hSetBuffering stdout $ BlockBuffering Nothing
   identifier <- logFileIdentifier benchmark seed
+  putStrLn $ "Running benchmark: " <> identifier
+  putStrLn $ "Seed: " <> show seed
+  putStrLn $ "Benchmark ID: " <> getBenchmarkId benchmark
+  putStrLn $ "#Rewrites: " <> show (length $ _eqSatRewrites benchmark)
   (logFileHandle, finalResultFile, jsonFile) <- prepareLogFiles identifier workDir benchmark
   (trainSet, testSet) <- loadTrainAndTestSet workDir benchmark
 

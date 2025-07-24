@@ -36,5 +36,6 @@ grade =
                       "F"
                     ]
             )
-          ]
+          ],
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites
     }
