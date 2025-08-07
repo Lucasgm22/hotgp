@@ -104,9 +104,9 @@ steadyStateReplace cfg pop = do
       withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
       newPop = keepBest cfg pop (mkIndividual cfg <$> withoutDuplication) -- keep best individuals
-      (toSaturate, notToSaturate) = SL.splitAt 1 newPop -- sature 10 best
-      popSaturated = map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) (SL.fromSortedList toSaturate)  `using` parList rseq -- run eqsat
-      newPopSaturated = SL.toSortedList popSaturated <> notToSaturate
+      (toSaturate, notToSaturate) = SL.splitAt 1 newPop -- saturet best
+      popSaturated = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) toSaturate -- run eqsat
+      newPopSaturated = popSaturated <> notToSaturate
   return (evaluations, newPopSaturated)
 
 -- | Given a probability, runs an action or uses a fallback
