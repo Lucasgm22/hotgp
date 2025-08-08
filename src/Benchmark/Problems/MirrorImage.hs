@@ -24,5 +24,5 @@ mirrorImage =
       _allowedConstants =
         M.fromList
           [(GBool, pure . BoolLit <$> [True, False])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }

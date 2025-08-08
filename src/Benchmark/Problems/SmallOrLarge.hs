@@ -31,7 +31,7 @@ smallOrLarge =
           [ (GInt, [intRng]),
             (GList GChar, pure . stLit <$> ["small", "large"])
           ],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites
     }
   where
     intRng = IntLit <$> randomR (-10_000, 10_000)

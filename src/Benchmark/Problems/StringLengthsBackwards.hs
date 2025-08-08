@@ -22,7 +22,7 @@ stringLengthsBackwards =
       _relevantTypes = S.fromList $ (allowUnaryLambdas <> allowList) baseTypes,
       _customOutputParser = Nothing,
       _allowedConstants = M.fromList [(GInt, [intRng])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }
   where
     baseTypes = [GInt, GBool, GList GChar]

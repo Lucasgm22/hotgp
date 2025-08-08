@@ -16,6 +16,7 @@ import Grammar.Simplify (simplifyTree)
 import Pretty
 import System.Directory
 import System.IO
+import Data.Equality.Saturation (Rewrite)
 
 prepareLogFiles :: String -> FilePath -> Benchmark a -> IO (Handle, FilePath, FilePath)
 prepareLogFiles identifier workDir benchmark = do
@@ -38,8 +39,8 @@ logBest dataset t = unlines $ header : (logTestCase <$> dataset)
     logTestCase :: TestCase -> String
     logTestCase (x, y) = csvJoin $ (pretty <$> x) <> [pretty y, maybe "nan" pretty yHat, show $ Just y == yHat] where yHat = evalTree x t
 
-jsonBest :: (Show a, Fitness a) => String -> Int -> Int -> Dataset -> Individual a -> String
-jsonBest datasetName seed nEvals dataset ind =
+jsonBest :: (Show a, Fitness a) => String -> Int -> Int -> Dataset -> [Rewrite (Maybe Lit) TreeF] -> Individual a  ->String
+jsonBest datasetName seed nEvals dataset rwRules ind  =
   "{\n"
     <> intercalate
       ",\n"
@@ -52,7 +53,7 @@ jsonBest datasetName seed nEvals dataset ind =
                 "nodeCount" .: getNodeCount tree,
                 "accuracy" .: accuracy,
                 "nmse" .: maybe "nan" show nmse,
-                "stringRepSimple" .: pretty (simplifyTree tree),
+                "stringRepSimple" .: pretty (runEqualitySaturationOnTreeFull rwRules tree),
                 "stringRep" .: pretty tree,
                 "showTree" .: show tree
               ]

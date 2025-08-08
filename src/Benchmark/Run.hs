@@ -53,7 +53,7 @@ runBenchmark workDir seed benchmark = do
 
   hClose logFileHandle
   writeFile finalResultFile $ logBest testSet (_indTree $ head $ SL.fromSortedList finalPop)
-  writeFile jsonFile $ jsonBest (getBenchmarkId benchmark) seed nEvals testSet (head $ SL.fromSortedList finalPop)
+  writeFile jsonFile $ jsonBest (getBenchmarkId benchmark) seed nEvals testSet (_eqSatRewrites benchmark) (head $ SL.fromSortedList finalPop)
 
 logFileIdentifier :: Benchmark a -> Int -> IO String
 logFileIdentifier benchmark seed = do

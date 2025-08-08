@@ -23,5 +23,5 @@ negativeToZero =
       _allowedConstants =
         M.fromList
           [(GInt, [pure $ IntLit 0])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }

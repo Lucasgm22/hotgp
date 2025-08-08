@@ -27,5 +27,5 @@ digits =
           [ (GInt, [IntLit <$> randomR (-10, 10)]),
             (GChar, [pure $ CharLit '\n'])
           ],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }

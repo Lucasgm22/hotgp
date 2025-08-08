@@ -22,7 +22,7 @@ sumOfSquares =
       _relevantTypes = S.fromList $ (allowUnaryLambdas <> allowList) [GInt, GBool],
       _customOutputParser = Nothing,
       _allowedConstants = M.fromList [(GInt, [intRng, pure $ IntLit 0, pure $ IntLit 1])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }
   where
     intRng = IntLit <$> randomR (-100, 100)

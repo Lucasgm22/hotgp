@@ -28,7 +28,7 @@ replaceSpaceWithNewlineFst =
           [ (GChar, (pure . CharLit <$> [' ', '\n']) <> [CharLit <$> randomR ('!', '~')]),
             (GList GChar, [stLit <$> stringErc])
           ],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }
   where
     baseTypes = [GBool, GChar, GInt]

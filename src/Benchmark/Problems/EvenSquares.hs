@@ -27,7 +27,7 @@ evenSquares =
       _relevantTypes = S.fromList $ (allowList <> allowUnaryLambdas) [GInt, GBool, GFloat],
       _customOutputParser = Just parseOutput,
       _allowedConstants = M.empty,
-      _eqSatRewrites = floatRewrites <> booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = floatRewrites <> booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }
 
 parseOutput :: OutputParser

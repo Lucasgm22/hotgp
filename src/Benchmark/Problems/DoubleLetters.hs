@@ -24,5 +24,5 @@ doubleLetters =
         M.fromList
           [ (GChar, [pure $ CharLit '!'])
           ],
-      _eqSatRewrites = booleanRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }

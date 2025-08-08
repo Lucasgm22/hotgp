@@ -24,5 +24,5 @@ vectorAverage =
       _customOutputParser = Nothing,
       _allowedConstants =
         M.fromList [(GInt, [return $ IntLit 0]), (GFloat, [return $ FloatLit 0])],
-      _eqSatRewrites = booleanRewrites <> intComparisonRewrites <> intRewrites <> floatRewrites <> listRewrites
+      _eqSatRewrites = booleanRewrites <> intComparisonRewrites <> intRewrites <> floatRewrites <> listRewrites <> listComparisonRewrites
     }

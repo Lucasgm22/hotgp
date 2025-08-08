@@ -25,5 +25,5 @@ compareStringLengths =
         M.fromList
           [ (GBool, return . BoolLit <$> [True, False])
           ],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites
     }

@@ -8,12 +8,14 @@
 
 module Grammar.EqualitySaturation (
     runEqualitySaturationOnTree
+  , runEqualitySaturationOnTreeFull
   , TreeF
   , booleanRewrites
   , intRewrites
   , intComparisonRewrites
   , floatRewrites
   , listRewrites
+  , listComparisonRewrites
   , pairRewrites
   , lambdaRewrites) where
 
@@ -208,6 +210,10 @@ intComparisonRewrites =
     , pat (NodeF GtInt ["a", "a"])   := toLeafPat False -- a Gt a = False
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MinInt ["a", "b"])])]) := pat (NodeF GtInt ["a", "b"]) -- !(a == min a b) = a > b
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MaxInt ["a", "b"])])]) := pat (NodeF LtInt ["a", "b"]) -- !(a == max a b) = a < b
+    , pat (NodeF GtInt [pat (NodeF MaxInt ["a", "b"]), "a"]) := pat (NodeF GtInt ["b", "a"]) -- max a b > a = b > a
+    , pat (NodeF GtInt [pat (NodeF MinInt ["a", "b"]), "a"]) := pat (NodeF LtInt ["b", "a"]) -- max a b > a = b < a
+    , pat (NodeF GtInt [pat (NodeF SubInt ["a", "b"]), toLeafPat zeroI]) := pat (NodeF GtInt ["a", "b"]) -- a - b > 0 = a > b
+    , pat (NodeF LtInt [pat (NodeF SubInt ["a", "b"]), toLeafPat zeroI]) := pat (NodeF LtInt ["a", "b"]) -- a - b < 0 = a < b
   ]
 
 -- | The rewrite rules to be applied in equality saturation for float operations.
@@ -237,6 +243,12 @@ listRewrites =
     , pat (NodeF Take [pat (NodeF Len ["a"]), "a"])                  := "a" -- Take (Len a) a = a
     , pat (NodeF Take [toLeafPat oneI, pat (NodeF Singleton ["a"])]) := pat (NodeF Singleton ["a"]) -- Take 1 (Singleton a) = Singleton a
     , pat (NodeF Range ["a", "a", "a"])                              := pat (NodeF Singleton ["a"]) -- [a,a+a..a] = [a]
+  ]
+
+listComparisonRewrites :: [Rewrite (Maybe Lit) TreeF]
+listComparisonRewrites = 
+  [
+      pat (NodeF MinInt [pat (NodeF Len ["a"]), toLeafPat zeroI]) := toLeafPat zeroI -- min (Len a) 0 = 0
   ]
 
 -- | The rewrite rules to be applied in equality saturation for pair operations.
@@ -272,4 +284,14 @@ nonZero v subst egr =
 runEqualitySaturationOnTree :: Int -> [Rewrite (Maybe Lit) TreeF] -> Tree -> Tree
 runEqualitySaturationOnTree maxH rewrites t = if getHeight saturated <= maxH then saturated else t 
   where
-    saturated = toTree $ fst (equalitySaturation' (BackoffScheduler 10 10) (toTreeF t) rewrites cost)
+    saturated = toTree $ fst (equalitySaturation' (BackoffScheduler 100 10) (toTreeF t) rewrites cost)
+
+runEqualitySaturationOnTreeFull :: [Rewrite (Maybe Lit) TreeF] -> Tree -> Tree
+runEqualitySaturationOnTreeFull = runEqualitySaturationOnTreeFull' 3
+
+runEqualitySaturationOnTreeFull' :: Int -> [Rewrite (Maybe Lit) TreeF] -> Tree -> Tree
+runEqualitySaturationOnTreeFull' i rwRules t | i == 0  = t
+                                             | t == t' = t
+                                             | otherwise = runEqualitySaturationOnTreeFull' (i - 1) rwRules t'
+  where
+    t' = toTree $ fst (equalitySaturation (toTreeF t) rwRules cost) 

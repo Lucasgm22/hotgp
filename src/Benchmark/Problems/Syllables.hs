@@ -37,7 +37,7 @@ syllables =
             ),
             (GChar, (pure . CharLit <$> vowels) <> [CharLit <$> randomR ('!', '~')])
           ],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites
     }
 
 vowels :: [Char]

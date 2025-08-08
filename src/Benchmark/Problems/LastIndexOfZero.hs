@@ -29,5 +29,5 @@ lastIndexOfZero =
       _allowedConstants =
         M.fromList
           [(GInt, [return $ IntLit 0])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> lambdaRewrites <> pairRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> lambdaRewrites <> pairRewrites
     }

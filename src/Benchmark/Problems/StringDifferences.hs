@@ -26,7 +26,7 @@ stringDifferences =
       _relevantTypes = S.fromList $ (allowList <> allowUnaryLambdas) baseTypes,
       _customOutputParser = Just parseOutput,
       _allowedConstants = M.fromList [(GInt, [intRng])],
-      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> pairRewrites <> lambdaRewrites
+      _eqSatRewrites = booleanRewrites <> intRewrites <> intComparisonRewrites <> listRewrites <> listComparisonRewrites <> pairRewrites <> lambdaRewrites
     }
   where
     baseTypes = [GInt, GBool, GChar, GPair GChar GChar, GPair GInt (GPair GChar GChar)]

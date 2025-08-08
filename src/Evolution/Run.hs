@@ -95,19 +95,19 @@ initPop cfg = SL.toSortedList . map (mkIndividual cfg) <$> ramped cfg
 -- | Runs the step of the evolution, known as Steady State Replace
 steadyStateReplace :: (Fitness a) => Config a -> SortedPop a -> St (Evaluations, SortedPop a)
 steadyStateReplace cfg pop = do
-  let rankedPop = exponentialRank cfg pop
+  let (toSaturate, notToSaturate) = SL.splitAt (_individualsPerStep cfg) pop -- saturet x best ones
+      saturated                   = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) toSaturate -- run eqsat
+      popSaturated                = saturated <> notToSaturate
+  let rankedPop = exponentialRank cfg popSaturated
   parents <- inPairs . map _indTree <$> sampleManyWithProb (_individualsPerStep cfg) rankedPop
   children <- concat <$> mapM (doCrossover cfg) parents
   xMen <- mapM (doMutation cfg) children
 
-  let popTrees = map _indTree $ SL.fromSortedList pop
+  let popTrees = map _indTree $ SL.fromSortedList popSaturated
       withoutDuplication = filter (`notElem` popTrees) xMen
       evaluations = length children -- withoutDuplication
-      newPop = keepBest cfg pop (mkIndividual cfg <$> withoutDuplication) -- keep best individuals
-      (toSaturate, notToSaturate) = SL.splitAt 1 newPop -- saturet best
-      popSaturated = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) toSaturate -- run eqsat
-      newPopSaturated = popSaturated <> notToSaturate
-  return (evaluations, newPopSaturated)
+      newPop = keepBest cfg popSaturated (mkIndividual cfg <$> withoutDuplication) -- keep best individuals
+  return (evaluations, newPop)
 
 -- | Given a probability, runs an action or uses a fallback
 tossCoin :: Double -> a -> St a -> St a
