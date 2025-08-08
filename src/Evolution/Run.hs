@@ -96,8 +96,8 @@ initPop cfg = SL.toSortedList . map (mkIndividual cfg) <$> ramped cfg
 steadyStateReplace :: (Fitness a) => Config a -> SortedPop a -> St (Evaluations, SortedPop a)
 steadyStateReplace cfg pop = do
   let (toSaturate, notToSaturate) = SL.splitAt (_individualsPerStep cfg) pop -- saturet x best ones
-      saturated                   = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) toSaturate
-      popSaturated                = saturated <> notToSaturate -- run eqsat
+      saturated                   = SL.map (mapIndividual (runEqualitySaturationOnTree (_maxTreeDepth cfg) (_eqSatRewriteRules cfg))) toSaturate -- run eqsat
+      popSaturated                = saturated <> notToSaturate
   let rankedPop = exponentialRank cfg popSaturated
   parents <- inPairs . map _indTree <$> sampleManyWithProb (_individualsPerStep cfg) rankedPop
   children <- concat <$> mapM (doCrossover cfg) parents
