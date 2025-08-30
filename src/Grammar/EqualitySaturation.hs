@@ -165,17 +165,11 @@ booleanRewrites =
     , pat (NodeF If [pat (NodeF LtInt ["a", "b"]), "b", "a"]) := pat (NodeF MaxInt ["a", "b"]) -- If (a < b) then b else a = max a b
     , pat (NodeF If ["a", "b", "b"]) := "b" -- If a then b else b = b
     -- BOOLEAN ALGEBRA
-    , pat (NodeF Or ["a", "b"])                                             := pat (NodeF Or ["b", "a"]) -- a Or b = b Or a
-    , pat (NodeF And ["a", "b"])                                            := pat (NodeF And ["b", "a"]) -- a And b = b And a
-    , pat (NodeF Or [pat (NodeF Or ["a", "b"]), "c"])                       := pat (NodeF Or ["a", pat (NodeF Or ["b", "c"])]) -- (a Or b) Or c = a Or (b Or c)
-    , pat (NodeF And [pat (NodeF And ["a", "b"]), "c"])                     := pat (NodeF And ["a", pat (NodeF And ["b", "c"])]) -- (a And b) And c = a And (b And c)
-    , pat (NodeF Or [toLeafPat True, "a"])                                  := toLeafPat True -- True Or a  = True
+    , pat (NodeF Or [toLeafPat True, "a"])                                  := toLeafPat True -- True Or a = True
     , pat (NodeF Or [toLeafPat False, "a"])                                 := "a" -- False Or a = a
     , pat (NodeF And [toLeafPat True, "a"])                                 := "a" -- True And a  = a
     , pat (NodeF And [toLeafPat False, "a"])                                := toLeafPat False -- False And a = False
     , pat (NodeF Not [pat (NodeF Not ["a"])])                               := "a" -- !!a = a
-    , pat (NodeF Or [pat (NodeF And ["a", "c"]), pat (NodeF And ["b, c"])]) := pat (NodeF And [pat (NodeF Or ["a", "b"]), "c"]) -- (a And c) Or (b And c) = (a Or b) And c
-    , pat (NodeF And [pat (NodeF Or ["a", "c"]), pat (NodeF Or ["b, c"])])  := pat (NodeF Or [pat (NodeF And ["a", "b"]), "c"]) -- (a Or c) And (b Or c) = (a And b) Or c
     , pat (NodeF And ["a", "a"])     := "a" -- a AND a = a
     , pat (NodeF Or ["a", "a"])      := "a" -- a OR a = a
   ]
@@ -194,7 +188,6 @@ intRewrites =
     , pat (NodeF DivInt ["a", toLeafPat oneI])   := "a" -- a / 1 = a
     , pat (NodeF DivInt ["a", "a"])   := toLeafPat oneI :| nonZero "a" -- a / a = 1
     , pat (NodeF ModInt ["a", toLeafPat oneI]) := toLeafPat zeroI -- a % 1 = 0
-    , pat (NodeF ModInt [pat (NodeF MultInt ["a", "b"]), "a"]) := toLeafPat zeroI :| nonZero "a" -- (a * b) % a = 0
     , pat (NodeF MinInt ["a", pat (NodeF MultInt ["a", "a"])]) := "a" -- min (a a*a) = a
     , pat (NodeF MaxInt ["a", pat (NodeF MultInt ["a", "a"])]) := pat (NodeF MultInt ["a", "a"]) -- max (a a*a) = a*a
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MinInt ["a", "b"])])]) := pat (NodeF GtInt ["a", "b"]) -- !(a == min a b) = a > b
@@ -211,7 +204,7 @@ intComparisonRewrites =
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MinInt ["a", "b"])])]) := pat (NodeF GtInt ["a", "b"]) -- !(a == min a b) = a > b
     , pat (NodeF Not [pat (NodeF EqInt ["a", pat (NodeF MaxInt ["a", "b"])])]) := pat (NodeF LtInt ["a", "b"]) -- !(a == max a b) = a < b
     , pat (NodeF GtInt [pat (NodeF MaxInt ["a", "b"]), "a"]) := pat (NodeF GtInt ["b", "a"]) -- max a b > a = b > a
-    , pat (NodeF GtInt [pat (NodeF MinInt ["a", "b"]), "a"]) := pat (NodeF LtInt ["b", "a"]) -- max a b > a = b < a
+    , pat (NodeF LtInt [pat (NodeF MinInt ["a", "b"]), "a"]) := pat (NodeF LtInt ["b", "a"]) -- min a b < a = b < a
     , pat (NodeF GtInt [pat (NodeF SubInt ["a", "b"]), toLeafPat zeroI]) := pat (NodeF GtInt ["a", "b"]) -- a - b > 0 = a > b
     , pat (NodeF LtInt [pat (NodeF SubInt ["a", "b"]), toLeafPat zeroI]) := pat (NodeF LtInt ["a", "b"]) -- a - b < 0 = a < b
   ]
