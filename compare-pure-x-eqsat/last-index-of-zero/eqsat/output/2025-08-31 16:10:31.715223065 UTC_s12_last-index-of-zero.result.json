@@ -1,0 +1,13 @@
+{
+    "datasetName":"last-index-of-zero",
+    "seed":12,
+    "totalEvals":300000,
+    "fitness":"353",
+    "height":2,
+    "nodeCount":4,
+    "accuracy":0.194,
+    "nmse":"5.759982e-4",
+    "stringRepSimple":"(length x0) - 1",
+    "stringRep":"(length x0) - 1",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 2, _nodeCount = 4}), _operation = SubInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 1, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1)}]}"
+}
