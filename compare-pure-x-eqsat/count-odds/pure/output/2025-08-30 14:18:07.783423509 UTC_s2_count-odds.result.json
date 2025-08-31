@@ -1,0 +1,13 @@
+{
+    "datasetName":"count-odds",
+    "seed":2,
+    "totalEvals":28416,
+    "fitness":"0",
+    "height":3,
+    "nodeCount":7,
+    "accuracy":1.0,
+    "nmse":"0.0",
+    "stringRepSimple":"min (length (filter (\\y -> (mod (823 * y) 2) == 1) x0)) (length x0)",
+    "stringRep":"min (length (filter (\\y -> (mod (823 * y) (div 2 1)) == 1) x0)) (length x0)",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 3, _nodeCount = 7}), _operation = MinInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 4}), _operation = Len, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 3}), _operation = Filter, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Literal (LambdaLit (MkTypedTree {_tree = Node {_measure = Nothing, _operation = EqInt, _args = [Node {_measure = Nothing, _operation = ModInt, _args = [Node {_measure = Nothing, _operation = MultInt, _args = [Leaf {_measure = Nothing, _terminal = Literal (IntLit 823)},Leaf {_measure = Nothing, _terminal = Arg 0}]},Node {_measure = Nothing, _operation = DivInt, _args = [Leaf {_measure = Nothing, _terminal = Literal (IntLit 2)},Leaf {_measure = Nothing, _terminal = Literal (IntLit 1)}]}]},Leaf {_measure = Nothing, _terminal = Literal (IntLit 1)}]}, _type = MkFunctionType {_argTypes = [GInt], _outType = GBool}}))},Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]}]},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]}]}"
+}

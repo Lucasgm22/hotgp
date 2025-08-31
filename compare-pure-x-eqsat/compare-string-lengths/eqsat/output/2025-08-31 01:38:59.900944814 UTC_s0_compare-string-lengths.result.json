@@ -1,0 +1,13 @@
+{
+    "datasetName":"compare-string-lengths",
+    "seed":0,
+    "totalEvals":22122,
+    "fitness":"0",
+    "height":5,
+    "nodeCount":16,
+    "accuracy":1.0,
+    "nmse":"nan",
+    "stringRepSimple":"((length x1) > (length x0)) && ((length x2) > (length x1))",
+    "stringRep":"(if False then False else ((length x1) > (length x0))) && (not (not ((length x2) > (length x1))))",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 5, _nodeCount = 16}), _operation = And, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 3, _nodeCount = 8}), _operation = If, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (BoolLit False)},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (BoolLit False)},Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 5}), _operation = GtInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Arg 1}]},Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]}]}]},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 4, _nodeCount = 7}), _operation = Not, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 3, _nodeCount = 6}), _operation = Not, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 2, _nodeCount = 5}), _operation = GtInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), _terminal = Arg 2}]},Node {_measure = Just (MkMeasure {_currentDepth = 4, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 5, _height = 0, _nodeCount = 1}), _terminal = Arg 1}]}]}]}]}]}"
+}

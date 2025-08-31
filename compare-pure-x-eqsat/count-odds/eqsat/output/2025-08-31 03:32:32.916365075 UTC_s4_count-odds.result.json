@@ -1,0 +1,13 @@
+{
+    "datasetName":"count-odds",
+    "seed":4,
+    "totalEvals":6826,
+    "fitness":"0",
+    "height":4,
+    "nodeCount":6,
+    "accuracy":1.0,
+    "nmse":"0.0",
+    "stringRepSimple":"length (filter (\\y -> (product (singleton 0)) < (mod y (2 * 1))) x0)",
+    "stringRep":"sum (singleton (length (filter (\\y -> (product (singleton 0)) < (mod y (2 * 1))) x0)))",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 4, _nodeCount = 6}), _operation = SumInts, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 3, _nodeCount = 5}), _operation = Singleton, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 4}), _operation = Len, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 3}), _operation = Filter, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Literal (LambdaLit (MkTypedTree {_tree = Node {_measure = Nothing, _operation = LtInt, _args = [Node {_measure = Nothing, _operation = ProductInts, _args = [Node {_measure = Nothing, _operation = Singleton, _args = [Leaf {_measure = Nothing, _terminal = Literal (IntLit 0)}]}]},Node {_measure = Nothing, _operation = ModInt, _args = [Leaf {_measure = Nothing, _terminal = Arg 0},Node {_measure = Nothing, _operation = MultInt, _args = [Leaf {_measure = Nothing, _terminal = Literal (IntLit 2)},Leaf {_measure = Nothing, _terminal = Literal (IntLit 1)}]}]}]}, _type = MkFunctionType {_argTypes = [GInt], _outType = GBool}}))},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]}]}]}]}"
+}
