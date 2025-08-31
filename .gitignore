@@ -8,6 +8,7 @@ output/*.json
 *.checkpoint
 logs
 *.json
+!compare-pure-x-eqsat/*.json
 *.sh
 *.py
 
