@@ -169,6 +169,10 @@ booleanRewrites =
     , pat (NodeF Or [toLeafPat False, "a"])                                 := "a" -- False Or a = a
     , pat (NodeF And [toLeafPat True, "a"])                                 := "a" -- True And a  = a
     , pat (NodeF And [toLeafPat False, "a"])                                := toLeafPat False -- False And a = False
+    , pat (NodeF Or ["a", toLeafPat True])                                  := toLeafPat True -- a Or True = True
+    , pat (NodeF Or ["a", toLeafPat False])                                  := "a" -- a OR False = a
+    , pat (NodeF And ["a", toLeafPat True])                                 := "a" -- a And True  = a
+    , pat (NodeF And ["a", toLeafPat False])                                := toLeafPat False -- a And False = False
     , pat (NodeF Not [pat (NodeF Not ["a"])])                               := "a" -- !!a = a
     , pat (NodeF And ["a", "a"])     := "a" -- a AND a = a
     , pat (NodeF Or ["a", "a"])      := "a" -- a OR a = a
@@ -181,10 +185,13 @@ intRewrites =
       pat (NodeF MinInt ["a", "a"])  := "a" -- Min a a = a
     , pat (NodeF MaxInt ["a", "a"])  := "a" -- Max a a = a
     , pat (NodeF AddInt [toLeafPat zeroI, "a"])   := "a" -- 0 + a = a
+    , pat (NodeF AddInt ["a", toLeafPat zeroI])   := "a" -- a + 0 = a
     , pat (NodeF SubInt ["a", toLeafPat zeroI])   := "a" -- a - 0 = a
     , pat (NodeF SubInt ["a", "a"])   := toLeafPat zeroI  -- a - a = 0
     , pat (NodeF MultInt [toLeafPat oneI, "a"])   := "a" -- 1 * a = a
+    , pat (NodeF MultInt ["a", toLeafPat oneI])   := "a" -- a * 1 = a
     , pat (NodeF MultInt [toLeafPat zeroI, "a"])   := toLeafPat zeroI -- 0 * a = 0
+    , pat (NodeF MultInt ["a", toLeafPat zeroI])   := toLeafPat zeroI -- a * 0 = 0
     , pat (NodeF DivInt ["a", toLeafPat oneI])   := "a" -- a / 1 = a
     , pat (NodeF DivInt ["a", "a"])   := toLeafPat oneI :| nonZero "a" -- a / a = 1
     , pat (NodeF ModInt ["a", toLeafPat oneI]) := toLeafPat zeroI -- a % 1 = 0
@@ -214,10 +221,13 @@ floatRewrites :: [Rewrite (Maybe Lit) TreeF]
 floatRewrites =
   [
       pat (NodeF AddFloat [toLeafPat zeroF, "a"]) := "a" -- 0.0 + a = a
+    , pat (NodeF AddFloat ["a", toLeafPat zeroF]) := "a" -- a + 0.0 = a
     , pat (NodeF SubFloat ["a", toLeafPat zeroF]) := "a" -- a - 0.0 = a
     , pat (NodeF SubFloat ["a", "a"]) := toLeafPat zeroF -- a - a = 0.0
     , pat (NodeF MultFloat [toLeafPat oneF, "a"]) := "a" -- 1.0 * a = a
+    , pat (NodeF MultFloat ["a", toLeafPat oneF]) := "a" -- a * 1.0 = a
     , pat (NodeF MultFloat [toLeafPat zeroF, "a"]) := toLeafPat zeroF -- 0.0 * a = 0.0
+    , pat (NodeF MultFloat ["a", toLeafPat zeroF]) := toLeafPat zeroF -- a * 0.0 = 0.0
     , pat (NodeF DivFloat ["a", toLeafPat oneF]) := "a" -- a / 1.0 = a
     , pat (NodeF DivFloat ["a", "a"]) := toLeafPat oneF :| nonZero "a" -- a / a = 1.0
   ]
