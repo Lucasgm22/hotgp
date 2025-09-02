@@ -1,0 +1,13 @@
+{
+    "datasetName":"vector-average",
+    "seed":1,
+    "totalEvals":11968,
+    "fitness":"5.8683753e-4",
+    "height":3,
+    "nodeCount":6,
+    "accuracy":1.0,
+    "nmse":"1.1674353e-18",
+    "stringRepSimple":"(sum x0) / (fromIntegral (length x0))",
+    "stringRep":"(sum x0) / (fromIntegral (length x0))",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 3, _nodeCount = 6}), _operation = DivFloat, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 1, _nodeCount = 2}), _operation = SumFloats, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 3}), _operation = IntToFloat, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 2}), _operation = Len, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]}]}]}"
+}
