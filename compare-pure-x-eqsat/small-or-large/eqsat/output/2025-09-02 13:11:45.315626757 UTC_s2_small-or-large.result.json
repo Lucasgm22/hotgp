@@ -1,0 +1,13 @@
+{
+    "datasetName":"small-or-large",
+    "seed":2,
+    "totalEvals":300000,
+    "fitness":"55",
+    "height":3,
+    "nodeCount":13,
+    "accuracy":0.991,
+    "nmse":"nan",
+    "stringRepSimple":"if ((x0 + 819) < 1833) then \"small\" else (if (1794 < x0) then \"large\" else \"\")",
+    "stringRep":"if ((x0 + 819) < 1833) then \"small\" else (if (1794 < x0) then \"large\" else \"\")",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 3, _nodeCount = 13}), _operation = If, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 5}), _operation = LtInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 3}), _operation = AddInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0},Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 819)}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1833)}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 1, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 's',CharLit 'm',CharLit 'a',CharLit 'l',CharLit 'l'])},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 6}), _operation = If, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 3}), _operation = LtInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1794)},Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 'l',CharLit 'a',CharLit 'r',CharLit 'g',CharLit 'e'])},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [])}]}]}"
+}

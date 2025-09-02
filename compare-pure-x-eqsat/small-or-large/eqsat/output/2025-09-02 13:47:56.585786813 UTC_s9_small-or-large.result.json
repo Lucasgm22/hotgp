@@ -1,0 +1,13 @@
+{
+    "datasetName":"small-or-large",
+    "seed":9,
+    "totalEvals":300000,
+    "fitness":"4",
+    "height":4,
+    "nodeCount":16,
+    "accuracy":1.0,
+    "nmse":"nan",
+    "stringRepSimple":"if ((x0 + -15) < 1985) then (take ((1985 - x0) - (x0 + -15)) \"small\") else \"large\"",
+    "stringRep":"if ((x0 + -15) < 1985) then (take ((1985 - x0) - (x0 + -15)) \"small\") else \"large\"",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 4, _nodeCount = 16}), _operation = If, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 5}), _operation = LtInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 3}), _operation = AddInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0},Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit (-15))}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1985)}]},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 3, _nodeCount = 9}), _operation = Take, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 2, _nodeCount = 7}), _operation = SubInt, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 3}), _operation = SubInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1985)},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Node {_measure = Just (MkMeasure {_currentDepth = 3, _height = 1, _nodeCount = 3}), _operation = AddInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Arg 0},Leaf {_measure = Just (MkMeasure {_currentDepth = 4, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit (-15))}]}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 's',CharLit 'm',CharLit 'a',CharLit 'l',CharLit 'l'])}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 1, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 'l',CharLit 'a',CharLit 'r',CharLit 'g',CharLit 'e'])}]}"
+}

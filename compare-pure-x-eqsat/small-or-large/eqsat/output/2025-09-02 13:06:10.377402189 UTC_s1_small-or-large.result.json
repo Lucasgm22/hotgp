@@ -1,0 +1,13 @@
+{
+    "datasetName":"small-or-large",
+    "seed":1,
+    "totalEvals":300000,
+    "fitness":"5",
+    "height":3,
+    "nodeCount":11,
+    "accuracy":1.0,
+    "nmse":"nan",
+    "stringRepSimple":"if (1000 > x0) then \"small\" else (if (2001 > x0) then \"\" else \"large\")",
+    "stringRep":"if (1000 > x0) then \"small\" else (if (2001 > x0) then \"\" else \"large\")",
+    "showTree":"Node {_measure = Just (MkMeasure {_currentDepth = 0, _height = 3, _nodeCount = 11}), _operation = If, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 1, _nodeCount = 3}), _operation = GtInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 1000)},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 1, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 's',CharLit 'm',CharLit 'a',CharLit 'l',CharLit 'l'])},Node {_measure = Just (MkMeasure {_currentDepth = 1, _height = 2, _nodeCount = 6}), _operation = If, _args = [Node {_measure = Just (MkMeasure {_currentDepth = 2, _height = 1, _nodeCount = 3}), _operation = GtInt, _args = [Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Literal (IntLit 2001)},Leaf {_measure = Just (MkMeasure {_currentDepth = 3, _height = 0, _nodeCount = 1}), _terminal = Arg 0}]},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [])},Leaf {_measure = Just (MkMeasure {_currentDepth = 2, _height = 0, _nodeCount = 1}), _terminal = Literal (ListLit GChar [CharLit 'l',CharLit 'a',CharLit 'r',CharLit 'g',CharLit 'e'])}]}]}"
+}
